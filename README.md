@@ -115,3 +115,13 @@ CREATE TABLE movies_actors(
 	  PRIMARY KEY (movie_id,actor_id)
 );
 ```
+
+- Install Sample Data For _movies_ Database
+
+  - **IMPORTANT** - Follow the sequence of inserting data because of foreign keys constraint
+
+  - Download .sql files scripts
+
+    - directors.sql , actors.sql ,movies.sql ,movies_actors.sql,movies_revenues.sql
+
+  - Import these .sql scripts to insert data into tables from pgAdmin 4 client
