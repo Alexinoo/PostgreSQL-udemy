@@ -30,3 +30,12 @@ CREATE ROLE "Alex" WITH
   NOREPLICATION
   ENCRYPTED PASSWORD 'md5d48d58d5f0ccf167313bb402faa0f79a';
 ```
+
+- Drop a Database
+  - [IF EXISTS] is optional
+  - Only super users & database owner can execute the DROP DATABASE statement
+  - Careful whenever you try to use anything starting with 'DROP'
+
+```
+DROP DATABASE [IF EXISTS] database_name
+```
