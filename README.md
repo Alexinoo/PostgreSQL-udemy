@@ -60,6 +60,9 @@ CREATE DATABASE database_name;
 
   - create movies_revenues
 
+  - create movies_actors junction table
+    - contains foreign keys of different table
+
 ```
 CREATE TABLE actors(
     actor_id SERIAL PRIMARY KEY,
@@ -99,8 +102,16 @@ CREATE TABLE movies(
 ```
 CREATE TABLE movies_revenues(
     revenue_id SERIAL PRIMARY KEY,
-	movie_id INT REFERENCES movies (movie_id),
-	revenues_domestic NUMERIC (10,2),
-	revenues_international NUMERIC (10,2)
+    movie_id INT REFERENCES movies (movie_id),
+    revenues_domestic NUMERIC (10,2),
+    revenues_international NUMERIC (10,2)
+);
+```
+
+```
+CREATE TABLE movies_actors(
+    movie_id INT REFERENCES movies (movie_id),
+	  actor_id INT REFERENCES actors (actor_id),
+	  PRIMARY KEY (movie_id,actor_id)
 );
 ```
