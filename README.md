@@ -37,5 +37,11 @@ CREATE ROLE "Alex" WITH
   - Careful whenever you try to use anything starting with 'DROP'
 
 ```
-DROP DATABASE [IF EXISTS] database_name
+DROP DATABASE [IF EXISTS] database_name;
+```
+
+- Create a Database
+
+```
+CREATE DATABASE database_name;
 ```
