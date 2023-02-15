@@ -124,4 +124,9 @@ CREATE TABLE movies_actors(
 
     - directors.sql , actors.sql ,movies.sql ,movies_actors.sql,movies_revenues.sql
 
-  - Import these .sql scripts to insert data into tables from pgAdmin 4 client
+  - Import these .sql scripts to insert data into tables from pgAdmin 4 client in the following sequence
+    - Insert data into table : 'directors'
+    - Insert data into table : 'actors'
+    - Insert data into table : 'movies'
+    - Insert data into table : 'movies_actors'
+    - Insert data into table : 'movies_revenues'
