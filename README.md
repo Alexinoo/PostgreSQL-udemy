@@ -1,6 +1,6 @@
 # PostgreSQL Bootcamp : Go From Beginner To Advanced,60+ hours
 
-## Introduction To PostgreSQL
+## Section 1: Introduction To PostgreSQL
 
 - Installing PostgreSQL on Windows
 
@@ -32,7 +32,7 @@ CREATE ROLE "Alex" WITH
 ```
 
 - Drop a Database
-  - [IF EXISTS] is optional
+  - [IF EXISTS] _is optional_
   - Only super users & database owner can execute the DROP DATABASE statement
   - Careful whenever you try to use anything starting with 'DROP'
 
@@ -44,4 +44,63 @@ DROP DATABASE [IF EXISTS] database_name;
 
 ```
 CREATE DATABASE database_name;
+```
+
+## Section 2: Creating And Modifying Tables
+
+- Create Table
+
+  - function : CREATE TABLE
+
+  - create actors/directors table
+
+  - create movies table with **foreign key**
+
+    - _columnname_ _datatype_ REFERENCES directors (director_id)
+
+  - create movies_revenues
+
+```
+CREATE TABLE actors(
+    actor_id SERIAL PRIMARY KEY,
+    first_name VARCHAR(150),
+    last_name VARCHAR(150) NOT NULL,
+    gender CHAR(1),
+    date_of_birth DATE,
+    add_date DATE,
+    update_date DATE
+);
+```
+
+```
+CREATE TABLE directors(
+    director_id SERIAL PRIMARY KEY,
+    first_name VARCHAR(150),
+    last_name VARCHAR(150),
+    date_of_birth DATE,
+    nationality VARCHAR(20),
+    add_date DATE,
+    update_date DATE
+);
+```
+
+```
+CREATE TABLE movies(
+    movie_id SERIAL PRIMARY KEY,
+    movie_name VARCHAR(100) NOT NULL,
+    movie_length INT,
+    movie_lang VARCHAR(20),
+    age_certificate VARCHAR(10),
+    release_date DATE,
+    director_id INT REFERENCES directors (director_id)
+);
+```
+
+```
+CREATE TABLE movies_revenues(
+    revenue_id SERIAL PRIMARY KEY,
+	movie_id INT REFERENCES movies (movie_id),
+	revenues_domestic NUMERIC (10,2),
+	revenues_international NUMERIC (10,2)
+);
 ```
