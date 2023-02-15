@@ -48,7 +48,7 @@ CREATE DATABASE database_name;
 
 ## Section 2: Creating And Modifying Tables
 
-- Create Table
+- Create Table (QUERY EDITOR) - _Option 1_
 
   - function : CREATE TABLE
 
@@ -125,8 +125,29 @@ CREATE TABLE movies_actors(
     - directors.sql , actors.sql ,movies.sql ,movies_actors.sql,movies_revenues.sql
 
   - Import these .sql scripts to insert data into tables from pgAdmin 4 client in the following sequence
+
     - Insert data into table : 'directors'
     - Insert data into table : 'actors'
     - Insert data into table : 'movies'
     - Insert data into table : 'movies_actors'
     - Insert data into table : 'movies_revenues'
+
+- Create Table (pgAdmin 4 GUI) - _Option 2_
+
+  - database_name - Schemas - Tables - Create - Table
+
+    - **General**
+      - Name **_tablename_**
+      - Owner **_owner_**
+      - Schema **_public_**
+      - partition side **_optional_ (advanced concept)**
+    - **Columns**
+
+      - Name **_columnname_**
+      - Datatype **_type_**
+      - Length **_applies to character varying_**
+      - Precision **_optional_**
+      - Not NULL **_optional_**
+      - Primary Key **_Mandatory for first column_**
+
+    - **Constraints**
