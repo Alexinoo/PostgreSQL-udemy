@@ -358,3 +358,13 @@ CREATE TABLE movies_actors(
   | customer_id | first_name | last_name |       email       | age  |
   | :---------: | :--------: | :-------: | :---------------: | :--- |
   |      7      |    jane    |    doe    | janedoe@email.com | null |
+
+- Updating all the records
+
+  - update with no _WHERE_ _clause_
+
+  ```
+   UPDATE customer
+   SET email = 'janedoe@email.com'
+   RETURNING *;
+  ```
