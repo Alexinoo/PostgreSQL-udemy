@@ -464,3 +464,37 @@ CREATE TABLE movies_actors(
       tag = EXCLUDED.tag || '1',
       update_date = NOW();
     ```
+
+## Section 4: Querying Data
+
+- **Important Points to Note**
+
+  - SQL Keywords are not case sensitive
+
+    - SELECT is equivalent to (Select or select)
+
+  - By convention, we will use all SQL keywords in uppercase to make the queries easier to read
+
+  - SELECT \* FROM _tablename_ (Convention is to use lowercase for _tablename_)
+
+  - PostgreSQL evaluates the FROM clause before the SELECT clause in the SELECT statement
+
+- **Select All Data From A Table**
+
+  - Syntax
+
+    ```
+    SELECT * FROM table_name
+    ```
+
+  - Get all records from movies table
+
+    ```
+    SELECT * FROM movies;
+    ```
+
+  - Get all records from actors table
+
+    ```
+    SELECT * FROM actors;
+    ```
