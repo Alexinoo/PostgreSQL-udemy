@@ -663,3 +663,17 @@ CREATE TABLE movies_actors(
     ```
     SELECT first_name,LENGTH(first_name) as len from actors ORDER BY len DESC;
     ```
+
+- **Using ORDER BY with column name or column number**
+
+  - Sort all records from actors table by first_name ASC and DOB DESC - use column_names
+
+  ```
+   SELECT * from actors ORDER BY first_name ,date_of_birth DESC;
+  ```
+
+  - Sort specific columns from actors -ORDER BY - use column_numbers instead
+
+  ```
+   SELECT first_name,last_name,date_of_birth from actors ORDER BY 1 ,3 DESC;
+  ```
