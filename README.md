@@ -632,3 +632,19 @@ CREATE TABLE movies_actors(
   - **PostgreSQL evaluates the clauses in the SELECT statement in the following order**
 
     - **FROM , SELECT , ORDER BY**
+
+- **Using ORDER BY with alias column name**
+
+  - Make an alias for last_name as surname and sort rows by last_name from actors table
+
+    ```
+    SELECT first_name , last_name AS surname FROM actors ORDER BY last_name;
+    ```
+
+  - sort rows by surname instead
+
+    ```
+    SELECT first_name , last_name AS surname FROM actors ORDER BY surname;
+    ```
+
+  - Both WORKS !!
