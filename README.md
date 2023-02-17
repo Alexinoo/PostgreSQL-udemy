@@ -151,3 +151,42 @@ CREATE TABLE movies_actors(
       - Primary Key **_Mandatory for first column_**
 
     - **Constraints**
+
+- pgAdmin 4 GUI - View Table Structure and columns
+
+  - View the structure of an existing table
+
+    - Use select query
+      ```
+      SELECT * FROM _tablename_
+      ```
+    - Right Click on Table name - Properties
+      - General
+      - Columns
+        - _columns definitions_
+      - Constraints
+        - _Primary Key_
+        - _Foreign Key_
+        - _Check_
+        - _Unique_
+      - Parameters
+      - Security
+      - SQL
+
+  - Add a column to an existing table
+
+    - Right Click on Column - Create - Column
+    - _column definitions_
+
+  - Rename a column
+
+    - Right click on Column - Properties
+    - Edit & save
+
+  - drop/delete a column
+
+    - Right click on Column - Delete/Drop
+
+  - change datatype of a column
+    - Right Click on Column - Properties
+    - _definitions_
