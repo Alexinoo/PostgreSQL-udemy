@@ -190,3 +190,24 @@ CREATE TABLE movies_actors(
   - change datatype of a column
     - Right Click on Column - Properties
     - _definitions_
+
+- Delete table from database
+
+  - Create table and then delete
+
+  ```
+  CREATE TABLE ROLES(
+  	role_id SERIAL PRIMARY KEY ,
+  	role_name VARCHAR(50)
+  );
+  ```
+
+  - pgAdmin (GUI)
+
+    - _Right click_ tablename - Delete/Drop
+
+  - Editor
+
+    ```
+    DROP TABLE roles;
+    ```
