@@ -247,3 +247,26 @@ CREATE TABLE movies_actors(
     INSERT INTO customer(first_name,last_name,email,age)
     VALUES('Alex','Mwangi','mwangialex26@gmail.com',32);
     ```
+
+- Insert Multiple Records into a table
+
+  - We separate data with (,) to add multiple records
+
+    ```
+    INSERT INTO table_name(columnname1,columnname2)
+    VALUES
+    ('value1','value2',value3...),
+    ('value1','value2',value3...),
+    ('value1','value2',value3...),
+    ('value1','value2',value3...);
+    ```
+
+    ```
+    INSERT INTO customer(first_name,last_name,email,age)
+    VALUES
+    ('Anthony','Karibe','karibetoni@gmail.com',42),
+    ('Nancy','Mwangi','unknown',62),
+    ('Lonah','Wambui','unknown',80);
+
+
+    ```
