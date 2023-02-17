@@ -711,3 +711,38 @@ CREATE TABLE movies_actors(
       ```
 
     - ORDER BY DESC places null values first unless you specify with NULLS LAST
+
+- **Using DISTINCT for selecting distinct values**
+
+  - Syntax
+
+    ```
+    SELECT DISTINCT columnname FROM tablename;
+    ```
+
+  - EXAMPLES
+
+    - Single column
+
+      ```
+      SELECT DISTINCT movie_lang FROM movies
+      ORDER BY 1;
+      ```
+
+      ```
+      SELECT DISTINCT director_id FROM movies
+      ORDER BY 1;
+      ```
+
+    - Multiple distinct values e.g. get unique movie_lang,director_id
+
+      ```
+      SELECT DISTINCT movie_lang,director_id FROM movies
+      ORDER BY 1;
+      ```
+
+    - Get all unique values
+
+      ```
+      SELECT DISTINCT * FROM movies;
+      ```
