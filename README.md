@@ -566,3 +566,32 @@ CREATE TABLE movies_actors(
       ```
       SELECT movie_name AS 'Movie Name'  FROM movies;
       ```
+
+- **Using SELECT statement for expressions**
+
+  - Can we combine first_name,last_name together to make 'Full name' ?
+
+    - Yes , Using Expressions
+
+    - || is used as a concatenating operator
+
+    ```
+    SELECT first_name || last_name AS "Full Names"  FROM actors;
+    ```
+
+    - Add a gap between the first_name and the last_name
+
+    ```
+    SELECT first_name || ' ' || last_name AS "Full Names"  FROM actors;
+    ```
+
+- Can we use an expression to get output
+
+  - Addition/Multiplication/Divison works - Returns sum/product/quotient
+    ```
+    SELECT 10 / 0;
+    ```
+  - Boolean expressions - Returns true/false
+    ```
+    SELECT 10 < 20;
+    ```
