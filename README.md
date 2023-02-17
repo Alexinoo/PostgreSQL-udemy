@@ -526,3 +526,43 @@ CREATE TABLE movies_actors(
     ```
      SELECT movie_name,movie_lang FROM movies;
     ```
+
+- **Adding Aliases To Column name From A Table**
+
+  - Rules for Naming aliases
+
+    - All aliases are by default lowercase
+
+    - Use double quotes for camelNotation e.g.
+
+      - SELECT first_name AS "firstName" FROM actors;
+
+    - Use double quotes for aliases that contains spaces e.g.
+
+      - SELECT first_name AS "First Name" FROM actors;
+
+    - AS keyword is optional
+
+      - SELECT first_name "firstName", FROM actors;
+
+    - Cannot use single quote for aliases ..
+
+  - Examples
+
+    - Make an alias for first_name as firstName on actors table
+
+    ```
+    SELECT first_name AS firstName FROM actors;
+    ```
+
+    - Make an alias for movie_name as "Movie Name" and movie_lang as "Language" on movies table
+
+    ```
+    SELECT movie_name AS "Movie Name",movie_lang AS "Language"  FROM movies;
+    ```
+
+    - Make alias for first_name AS 'First Name' from actors (use single quotes) - DOES NOT WORK !!
+
+      ```
+      SELECT movie_name AS 'Movie Name'  FROM movies;
+      ```
