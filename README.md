@@ -498,3 +498,31 @@ CREATE TABLE movies_actors(
     ```
     SELECT * FROM actors;
     ```
+
+- **Select Specific columns From A Table**
+
+  - Use explicit column names in SELECT statement
+
+    - Syntax
+
+      ```
+      SELECT column1,column2 FROM table_name;
+      ```
+
+  - Get first_name from actors table
+
+    ```
+     SELECT first_name FROM actors;
+    ```
+
+  - Get first_name,last_name from actors table
+
+    ```
+     SELECT first_name,last_name FROM actors;
+    ```
+
+  - Get movie_name,movie_lang from movies table
+
+    ```
+     SELECT movie_name,movie_lang FROM movies;
+    ```
