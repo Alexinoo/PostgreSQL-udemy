@@ -211,3 +211,39 @@ CREATE TABLE movies_actors(
     ```
     DROP TABLE roles;
     ```
+
+## Section 3: Modifying Data in the Tables
+
+- Insert Data into a table
+
+  - Create 'customers' table in Movies database
+
+        - customer_id,first_name,last_name,email,age
+
+        ```
+        CREATE TABLE customer (
+          customer_id SERIAL PRIMARY KEY,
+          first_name VARCHAR(50),
+          last_name VARCHAR(50),
+          email VARCHAR(50),
+          age INT
+        );
+        ```
+
+  - View the table data with SELECT
+
+    ```
+      SELECT * FROM CUSTOMER;
+    ```
+
+  - Insert data in the table
+
+    ```
+    INSERT INTO table_name(columnname1,columnname2)
+    VALUES('value1','value2');
+    ```
+
+    ```
+    INSERT INTO customer(first_name,last_name,email,age)
+    VALUES('Alex','Mwangi','mwangialex26@gmail.com',32);
+    ```
