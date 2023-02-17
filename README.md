@@ -648,3 +648,18 @@ CREATE TABLE movies_actors(
     ```
 
   - Both WORKS !!
+
+- **Using ORDER BY to sort rows by expression**
+
+  - Get all records of actors from _actors_ table
+    ```
+    SELECT * from actors;
+    ```
+  - Calculate the length of the actor first_name with LENGTH function
+    ```
+    SELECT first_name,LENGTH(first_name) as len from actors;
+    ```
+  - sort rows by length in DESC
+    ```
+    SELECT first_name,LENGTH(first_name) as len from actors ORDER BY len DESC;
+    ```
