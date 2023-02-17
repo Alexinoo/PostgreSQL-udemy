@@ -595,3 +595,40 @@ CREATE TABLE movies_actors(
     ```
     SELECT 10 < 20;
     ```
+
+- **Using ORDER BY to sort records**
+
+  - SELECT statement returns rows in an unspecified order
+
+  - To sort the rows of the result set , we use ORDER BY clause in the SELECT statement
+
+  - ORDER BY is ASC by default (_ASC is optional_)
+
+  - Syntax
+    ```
+    SELECT column FROM tablename
+    ORDER BY column ASC | DESC;
+    ```
+  - Sort based on single column in ASC / DESC
+
+    ```
+    SELECT * FROM movies ORDER BY release_date ASC;
+    ```
+
+    ```
+    SELECT * FROM movies ORDER BY release_date DESC;
+    ```
+
+  - Sort based on multiple columns
+
+    - ORDER BY multiple columns sorts data based on ASC and DESC direction with the combinations of columns
+
+    - sort all movie records by their release_date in DESC and movie_name in ASC
+
+      ```
+      SELECT * FROM movies ORDER BY movie_name ASC, release_date DESC;
+      ```
+
+  - **PostgreSQL evaluates the clauses in the SELECT statement in the following order**
+
+    - **FROM , SELECT , ORDER BY**
