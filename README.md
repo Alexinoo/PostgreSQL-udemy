@@ -368,3 +368,19 @@ CREATE TABLE movies_actors(
    SET email = 'janedoe@email.com'
    RETURNING *;
   ```
+
+- Delete data from a table
+
+  - Delete with condition _WHERE_ _clause_
+
+  ```
+   DELETE FROM customer
+   WHERE customer_id = 8
+   RETURNING *;
+  ```
+
+  - Delete with no condition
+
+  ```
+   DELETE FROM customer;
+  ```
