@@ -267,6 +267,22 @@ CREATE TABLE movies_actors(
     ('Anthony','Karibe','karibetoni@gmail.com',42),
     ('Nancy','Mwangi','unknown',62),
     ('Lonah','Wambui','unknown',80);
-
-
     ```
+
+- Insert Data with Quote
+
+  - Add say last_name ' Ng'ang'a '
+
+  - Won't work
+
+  ```
+  INSERT INTO customer(first_name,last_name)
+  VALUES('Peter','Ng'ang'a');
+  ```
+
+  - Solution : Add extra quote as an escape character
+
+  ```
+  INSERT INTO customer(first_name,last_name)
+  VALUES('Peter','Ng''ang''a');
+  ```
