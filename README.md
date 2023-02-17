@@ -677,3 +677,37 @@ CREATE TABLE movies_actors(
   ```
    SELECT first_name,last_name,date_of_birth from actors ORDER BY 1 ,3 DESC;
   ```
+
+- **Using ORDER BY with with NULL values**
+
+  - NULL is a marker that indicates either missing data / data is unknown
+
+  - When sorting rows that contains NULL values ,we can specify the order of null with other non-null values by using
+
+    - NULLS FIRST or NULLS LAST in the ORDER BY clause
+
+  - Syntax
+
+    ```
+    SELECT column_list from tablename
+    ORDER BY
+    sort_expression [ASC | DESC] [NULLS FIRST | NULLS LAST];
+    ```
+
+  - Example
+
+    - Create demo_sorting table with 1 column (num) and insert 1,2,3,null as values
+
+    - Default behavior is that null values comes last/at the end after the non-values
+
+      ```
+      SELECT num from demo_sorting ORDER BY num NULLS LAST;
+      ```
+
+    - Start with Null Values
+
+      ```
+      SELECT num from demo_sorting ORDER BY num NULLS FIRST;
+      ```
+
+    - ORDER BY DESC places null values first unless you specify with NULLS LAST
