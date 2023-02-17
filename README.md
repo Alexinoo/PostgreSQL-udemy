@@ -343,3 +343,18 @@ CREATE TABLE movies_actors(
     SET column_name1 = 'new value' , column_name2 = 'new value'
     WHERE column_name = 'value';
     ```
+
+- Updating a row and return the updated
+
+  - Use RETURNING to get updated rows
+
+  ```
+   UPDATE customer
+   SET last_name = 'Doe' , email = 'janedoe@email.com'
+   WHERE customer_id = 7
+   RETURNING *;
+  ```
+
+  | customer_id | first_name | last_name |       email       | age  |
+  | :---------: | :--------: | :-------: | :---------------: | :--- |
+  |      7      |    jane    |    doe    | janedoe@email.com | null |
