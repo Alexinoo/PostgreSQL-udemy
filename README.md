@@ -325,3 +325,21 @@ CREATE TABLE movies_actors(
     | customer_id |
     | :---------: |
     |      8      |
+
+- Update data in the table
+
+  - Update single column _WHERE_ Condition
+
+    ```
+    UPDATE table_name
+    SET column_name = 'new value'
+    WHERE column_name = 'value';
+    ```
+
+  - Update multiple column _WHERE_ Condition
+
+    ```
+    UPDATE table_name
+    SET column_name1 = 'new value' , column_name2 = 'new value'
+    WHERE column_name = 'value';
+    ```
