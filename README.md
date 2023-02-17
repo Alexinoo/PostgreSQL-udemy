@@ -286,3 +286,42 @@ CREATE TABLE movies_actors(
   INSERT INTO customer(first_name,last_name)
   VALUES('Peter','Ng''ang''a');
   ```
+
+- Use RETURNING to get info on added
+
+  - Default behavior when adding a record into a table
+
+    ```
+    INSERT INTO customer(first_name,last_name)
+    VALUES('Adnan','Waheed');
+
+    Query returned successfully in 100 msec.
+    ```
+
+  - After the insert , lets return all inserted/added rows (RETURNING \*)
+
+    - returns a table of rows added
+
+    ```
+    INSERT INTO customer(first_name)
+    VALUES('Jane')
+    RETURNING *;
+    ```
+
+    | customer_id | first_name | last_name | email | age  |
+    | :---------: | :--------: | :-------: | :---: | :--- |
+    |    jane     |    null    |   null    | null  | null |
+
+  - After the insert , lets return a single column value (RETURNING _customerid_)
+
+    - return just a single column customer_id for example
+
+    ```
+    INSERT INTO customer(first_name)
+    VALUES('James')
+    RETURNING customer_id;
+    ```
+
+    | customer_id |
+    | :---------: |
+    |      8      |
