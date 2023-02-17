@@ -384,3 +384,83 @@ CREATE TABLE movies_actors(
   ```
    DELETE FROM customer;
   ```
+
+- Using UPSERT
+
+  - General idea
+
+    - is that when you insert a new row into the table, PostgreSQL will update the row if it exists, otherwise , it will insert the new row.
+
+    - That is why we call the action as upsert (update or insert)
+
+    - Similar to INSERT INTO .... _IF NOT EXIST_
+
+  - Syntax
+
+    ```
+    INSERT INTO table_name(column_list)
+    VALUES(value_list)
+    ON CONFLICT target action;
+    ```
+
+  - _where_ 'target' is the _column_
+
+  - _where_ 'action' means
+
+    DO NOTHING : _means do nothing if the row already exists_ <br>
+    DO UPDATE SET _column1_ = _value1_ _WHERE_ condition : _update some fields_ <br>
+
+  - EXAMPLE
+
+    - Create 't_tags' table for Demo purposes
+
+      ```
+      CREATE TABLE t_tags(
+        id SERIAL PRIMARY KEY,
+        tag text UNIQUE,
+        update_date TIMESTAMP DEFAULT NOW()
+      );
+      ```
+
+    - Insert sample data
+
+      ```
+      INSERT INTO t_tags(tag)
+      VALUES
+      ('Pen'),
+      ('Pencil');
+      ```
+
+    - Insert a record , ON CONFLICT DO NOTHING
+
+      ```
+      INSERT INTO t_tags(tag)
+      VALUES('Pen')
+      ON CONFLICT (tag)
+      DO
+      NOTHING;
+      ```
+
+    - Insert a record , ON CONFLICT UPDATE( _set new values_ ) (same value tag = tag)
+
+    ```
+     INSERT INTO t_tags(tag)
+     VALUES('Pen')
+     ON CONFLICT (tag)
+     DO
+     UPDATE SET
+      tag = EXCLUDED.tag,
+      update_date = NOW();
+    ```
+
+    - We can do more interesting things with EXCLUDED.tag like (_updates tag to_ 'Pen1') as following
+
+    ```
+     INSERT INTO t_tags(tag)
+     VALUES('Pen')
+     ON CONFLICT (tag)
+     DO
+     UPDATE SET
+      tag = EXCLUDED.tag || '1',
+      update_date = NOW();
+    ```
