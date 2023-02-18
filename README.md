@@ -840,10 +840,33 @@ CREATE TABLE movies_actors(
       OR movie_lang = 'Chinese';
       ```
 
-    - Get all English language and director id is equal to 10
+    - Get all English language and director id is equal to 8
 
       ```
       SELECT * FROM movies
       WHERE movie_lang = 'English'
-      AND director_id = 10;
+      AND director_id = 8;
+      ```
+
+- **Combining AND,OR Operators**
+
+  - Get all English OR Chinese movies with age certificate equal to 12
+
+    - Without parentheses (Does not give correct results)
+
+      ```
+      SELECT * FROM movies
+      WHERE movie_lang = 'English'
+      OR movie_lang = 'Chinese'
+      AND age_certificate = '12'
+      ORDER BY movie_lang;
+      ```
+
+    - With parentheses (correct results)
+
+      ```
+      SELECT * FROM movies
+      WHERE (movie_lang = 'English' OR movie_lang = 'Chinese')
+      AND age_certificate = '12'
+      ORDER BY movie_lang;
       ```
