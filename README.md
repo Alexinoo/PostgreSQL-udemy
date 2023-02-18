@@ -957,3 +957,62 @@ CREATE TABLE movies_actors(
       ```
       SELECT * FROM movies WHERE release_date > '2000-12-31' ORDER BY release_date;
       ```
+
+- **Using LIMIT and OFFSET**
+
+  - Used to limit output records
+
+    - Syntax
+
+      ```
+      SELECT column_list FROM table_name
+      ORDER BY column_name
+      LIMIT number
+      ```
+
+    - Get the top 5 biggest movies by movie length
+
+      ```
+      SELECT * FROM movies ORDER BY movie_length DESC LIMIT 5;
+      ```
+
+    - Get the top 5 oldest American directors
+      ```
+      SELECT * FROM directors WHERE nationality = 'American' ORDER BY date_of_birth
+      LIMIT 5 ;
+      ```
+    - Get the top 10 youngest female actors
+      ```
+      SELECT * FROM actors WHERE gender = 'F' ORDER BY date_of_birth DESC LIMIT 10 ;
+      ```
+    - Get the top 10 most domestic profitable movies
+      ```
+      SELECT * FROM movies_revenues ORDER BY revenues_domestic DESC
+      NULLS LAST
+      LIMIT 10;
+      ```
+    - Get the top 10 least domestic profitable movies
+      ```
+      SELECT * FROM movies_revenues ORDER BY revenues_domestic
+      LIMIT 10;
+      ```
+
+- Using OFFSET
+
+  - LIMIT number OFFSET from_rownumber (from_rownumber is not included)
+
+    - List 5 films starting from the fourth one ordered by movie_id
+
+      ```
+      SELECT * FROM movies
+      ORDERED BY movie_id
+      LIMIT 5 OFFSET 4;
+      ```
+
+    - List all top 5 movies after the top 5 highest domestic profits movies
+
+      ```
+      SELECT * FROM movies_revenues
+      ORDER BY revenues_domestic DESC
+      LIMIT 5 OFFSET 5;
+      ```
