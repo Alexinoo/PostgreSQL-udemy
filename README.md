@@ -784,3 +784,46 @@ CREATE TABLE movies_actors(
       - Modulus _%_
 
   - Operators can be combined to make more complex queries
+
+- **AND Operator**
+
+  - Using WHERE clause
+
+    - Add specific conditions to our queries
+    - Limits the results for only data that satisfies our condition
+    - Can be used in conjuction with operators (Comparison,Logical and Arithmetic)
+
+  - Syntax
+
+    ```
+    SELECT columnlist FROM tablename
+    WHERE
+    conditions;
+    ```
+
+  - With Operators (AND | OR)
+
+  - Use Single condition
+
+    - Get all English Languages
+      ```
+      SELECT * FROM movies
+      WHERE movie_lang = 'English';
+      ```
+    - Get all Japanese Languages
+      ```
+      SELECT * FROM movies
+      WHERE movie_lang = 'Japanese';
+      ```
+
+  - Use Multiple conditions
+
+    - Use AND and OR OPERATORS with 2 separate fields
+
+    - Get all English Languages and age_certificate to 18
+
+      ```
+      SELECT * FROM movies
+      WHERE movie_lang = 'English'
+      AND age_certification = '18';
+      ```
