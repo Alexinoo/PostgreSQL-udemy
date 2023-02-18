@@ -870,3 +870,16 @@ CREATE TABLE movies_actors(
       AND age_certificate = '12'
       ORDER BY movie_lang;
       ```
+
+- **Order of execution with AND,OR Operators**
+
+  - AND operator is processed first and the OR second
+
+  - Uses BODMAS approach
+
+    - For example Multiplication comes before addition
+
+    - Without parentheses 3\*2+1 = 7
+    - With parentheses 3\*(2+1) = 9
+
+  - Use paretheses when using multiple operators
