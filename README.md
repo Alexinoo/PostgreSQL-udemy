@@ -909,3 +909,51 @@ CREATE TABLE movies_actors(
      WHERE movie_lang = 'English'
      ORDER BY movie_length DESC;
     ```
+
+- **Using COMPARISON Operators**
+
+  - Largely used with numeric data types (_can also be used with other data types as well_)
+
+    - all movies where movie length is greater/less than 100 (_100 is not included_)
+
+      ```
+      SELECT * FROM movies WHERE movie_length > 100 ORDER BY movie_length;
+      ```
+
+      ```
+      SELECT * FROM movies WHERE movie_length < 100 ORDER BY movie_length;
+      ```
+
+    - all movies where movie length is greater/less than and equal to 100 (_100 is included_)
+
+      ```
+      SELECT * FROM movies WHERE movie_length >= 100 ORDER BY movie_length;
+      ```
+
+      ```
+      SELECT * FROM movies WHERE movie_length <= 100 ORDER BY movie_length;
+      ```
+
+    - all movies which are not in English language (_!=_ is the same as _<>_)
+
+      ```
+      SELECT * FROM movies WHERE movie_lang != 'English' ORDER BY movie_lang;
+      ```
+
+      ```
+      SELECT * FROM movies WHERE movie_lang <> 'English' ORDER BY movie_lang;
+      ```
+
+  - Can we work with Dates data types
+
+    - Working with dates requires consideration of FORMAT in which the date is stored
+
+      - i.e. YYYY-MM-DD (default storage format)
+        or
+        DD-MM-YYYY
+
+    - all movies where release date is greater than 2000 (_YYYY-MM-DD_) format in the db
+
+      ```
+      SELECT * FROM movies WHERE release_date > '2000-12-31' ORDER BY release_date;
+      ```
