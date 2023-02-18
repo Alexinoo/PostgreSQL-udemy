@@ -746,3 +746,41 @@ CREATE TABLE movies_actors(
       ```
       SELECT DISTINCT * FROM movies;
       ```
+
+## Section 5: FILTERING Data
+
+- **Comparison, Logical and Arithmetic Operators**
+
+  - Operators - special keywords in SQL used in conjuction with SQL clauses to :
+
+    - Compare the value of the fields
+    - Select subset of fields
+    - Perform arithmetic operations
+
+  - Types of Operators
+
+    - COMPARISON OPERATORS
+
+      - Equal To _=_
+      - Greater Than _>_
+      - Less Than _<_
+      - Greater Than or Equal To _>=_
+      - Less Than or Equal To _<=_
+      - Not Equal To _<>_
+
+    - LOGICAL OPERATORS
+
+      - AND
+      - OR
+      - LIKE
+      - IN
+      - BETWEEN
+
+    - ARITHMETIC
+      - Addition _+_
+      - Subtraction _-_
+      - Multiplication _\*_
+      - Division _/_
+      - Modulus _%_
+
+  - Operators can be combined to make more complex queries
