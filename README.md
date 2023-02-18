@@ -1016,3 +1016,73 @@ CREATE TABLE movies_actors(
         ORDER BY revenues_domestic DESC
         LIMIT 5 OFFSET 5;
         ```
+
+- **Using FETCH clause**
+
+  - Fetch Clause
+
+    - FETCH clause retrieves a portion of rows returned by a query
+    - Introduced in SQL 2008
+    - Is functionally equivalent to the LIMIT clause
+    - Highly recommended since it follows the standard SQL
+
+  - Syntax
+
+    ```
+    OFFSET start { ROW | ROWS }
+    FETCH {FIRST | NEXT } [row_ count] {ROW | ROWS} ONLY
+    ```
+
+    - Where
+      - OFFSET start is an integer that is >=0 (default start is 0)
+      - In case start is greater than the number of rows in the result set, no rows are returned
+      - row_count (default value is 1)
+
+  - Examples
+
+    - Get first row of movies table
+
+      ```
+      SELECT * FROM movies
+      FETCH FIRST 1 ROW ONLY;
+      ```
+
+      ```
+      SELECT * FROM movies
+      FETCH FIRST ROW ONLY;
+      ```
+
+    - Get top 5 biggest movies by movie length
+
+      ```
+      SELECT * FROM movies
+      ORDER BY movie_length DESC
+      FETCH FIRST 5 ROW ONLY;
+      ```
+
+    - Get top 5 oldest american directors
+
+      ```
+      SELECT * FROM directors
+      ORDER BY date_of_birth
+      FETCH FIRST 5 ROW ONLY;
+      ```
+
+    - Get top 10 youngest female actors
+
+      ```
+      SELECT * FROM actors
+      WHERE gender = 'F'
+      ORDER BY date_of_birth DESC
+      FETCH FIRST 10 ROW ONLY;
+      ```
+
+    - Get first 5 movies from the 5th record onwards by long movie length
+
+      ```
+      SELECT *
+      FROM movies
+      ORDER BY movie_length DESC
+      OFFSET 5
+      FETCH FIRST 5 ROW ONLY;
+      ```
