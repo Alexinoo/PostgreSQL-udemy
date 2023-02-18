@@ -1080,9 +1080,52 @@ CREATE TABLE movies_actors(
     - Get first 5 movies from the 5th record onwards by long movie length
 
       ```
-      SELECT *
-      FROM movies
+      SELECT * FROM movies
       ORDER BY movie_length DESC
       OFFSET 5
       FETCH FIRST 5 ROW ONLY;
+      ```
+
+- **Using IN and NOT IN**
+
+  - Checks if a value matches /does not match the ones in a list
+
+    - value IN (value1,value2,value...)
+    - value NOT IN (value1,value2,value...)
+
+    - IN operator returns true if value matches any value in the list
+    - NOT IN operator returns true if the value does not match any value in the list
+
+  - Examples :-
+
+    - Get all movies in English,Chinese and Japanese languages
+
+      ```
+      SELECT * FROM movies
+      WHERE movie_lang IN ('English','Chinese','Japanese')
+      ORDER BY movie_lang;
+      ```
+
+    - Get all movies where age certificate is 12 and PG
+
+      ```
+      SELECT * FROM movies
+      WHERE age_certificate IN ('12','PG')
+      ORDER BY age_certificate;
+      ```
+
+    - Get all movies where director id is not 13 or 10
+
+      ```
+      SELECT * FROM movies
+      WHERE director_id NOT IN (13,10)
+      ORDER BY director_id;
+      ```
+
+    - Get all actors where actor id is not 1,2,3,4
+
+      ```
+      SELECT * FROM actors
+      WHERE actor_id NOT IN (1,2,3,4)
+      ORDER BY actor_id;
       ```
