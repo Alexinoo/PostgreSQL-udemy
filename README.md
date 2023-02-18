@@ -997,22 +997,22 @@ CREATE TABLE movies_actors(
       LIMIT 10;
       ```
 
-- Using OFFSET
+  - Using OFFSET
 
-  - LIMIT number OFFSET from_rownumber (from_rownumber is not included)
+    - LIMIT number OFFSET from_rownumber (from_rownumber is not included)
 
-    - List 5 films starting from the fourth one ordered by movie_id
+      - List 5 films starting from the fourth one ordered by movie_id
 
-      ```
-      SELECT * FROM movies
-      ORDERED BY movie_id
-      LIMIT 5 OFFSET 4;
-      ```
+        ```
+        SELECT * FROM movies
+        ORDERED BY movie_id
+        LIMIT 5 OFFSET 4;
+        ```
 
-    - List all top 5 movies after the top 5 highest domestic profits movies
+      - List all top 5 movies after the top 5 highest domestic profits movies
 
-      ```
-      SELECT * FROM movies_revenues
-      ORDER BY revenues_domestic DESC
-      LIMIT 5 OFFSET 5;
-      ```
+        ```
+        SELECT * FROM movies_revenues
+        ORDER BY revenues_domestic DESC
+        LIMIT 5 OFFSET 5;
+        ```
