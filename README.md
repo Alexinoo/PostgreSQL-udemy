@@ -883,3 +883,17 @@ CREATE TABLE movies_actors(
     - With parentheses 3\*(2+1) = 9
 
   - Use paretheses when using multiple operators
+
+- **Column aliases with WHERE clause**
+
+  - Can we use column aliases with WHERE clause ??
+
+    ```
+    SELECT first_name,last_name AS surname
+    FROM actors
+    WHERE surname = 'Allen';
+    ```
+
+  - Therefore this throws an error
+
+    - ERROR: column "surname" does not exist
