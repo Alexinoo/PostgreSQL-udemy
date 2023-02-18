@@ -1129,3 +1129,56 @@ CREATE TABLE movies_actors(
       WHERE actor_id NOT IN (1,2,3,4)
       ORDER BY actor_id;
       ```
+
+- **Using BETWEEN and NOT BETWEEN**
+
+  - Mostly used with Dates data types
+
+  - Matches a value against a range of values
+
+    - value BETWEEN low and high
+
+    - If the value is >= low value and <= high value, the expression returns true , otherwise , it returns false
+
+  - Examples
+
+    - Get all actors where birth_date between 1991 and 1995
+
+      ```
+      SELECT * FROM actors
+      WHERE date_of_birth BETWEEN '1991-01-01' AND '1995-12-31'
+      ORDER BY date_of_birth;
+      ```
+
+    - Get all movies released between 1998 and 2002
+
+      ```
+      SELECT * FROM movies
+      WHERE release_date BETWEEN '1998-01-01' AND '2002-12-31'
+      ORDER BY release_date;
+      ```
+
+    - Get all movies where domestic revenues are between 100 and 300
+
+      ```
+      SELECT * FROM movies_revenues
+      WHERE revenues_domestic BETWEEN 100 AND 300
+      ORDER BY revenues_domestic;
+      ```
+
+    - Can also be written as :
+
+      ```
+      SELECT * FROM movies_revenues
+      WHERE revenues_domestic >= 100 AND revenues_domestic <= 300
+      ORDER BY revenues_domestic;
+      ```
+
+    - Get all English movies where movie length is not between 100 and 200
+
+      ```
+      SELECT * FROM movies
+      WHERE movie_length NOT BETWEEN 100 AND 300
+      AND movie_lang = 'English'
+      ORDER BY movie_length;
+      ```
