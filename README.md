@@ -827,3 +827,23 @@ CREATE TABLE movies_actors(
       WHERE movie_lang = 'English'
       AND age_certification = '18';
       ```
+
+- **OR Operator**
+
+  - Allows you to find the records that match ANY of the criteria you asked for.
+
+    - Get all English language or Chinese movies
+
+      ```
+      SELECT * FROM movies
+      WHERE movie_lang = 'English'
+      OR movie_lang = 'Chinese';
+      ```
+
+    - Get all English language and director id is equal to 10
+
+      ```
+      SELECT * FROM movies
+      WHERE movie_lang = 'English'
+      AND director_id = 10;
+      ```
