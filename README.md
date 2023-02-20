@@ -1500,3 +1500,86 @@ CREATE TABLE movies_actors(
       ```
       SELECT CONCAT('|',revenues_domestic,revenues_international) AS profits from movies_revenues;
       ```
+
+## Section 6: PostgreSQL Data types
+
+- **Boolean Data type**
+
+  - PostgreSQL supports a single boolean data type.
+
+  - Boolean can have 3 values :
+
+    - True
+    - False
+    - Null
+
+  - Valid literals for boolean values in PostgreSQL
+
+    - must be enclosed in single quotes except true and false
+
+      |  TRUE  | FALSE   |
+      | :----: | :------ |
+      |  TRUE  | FALSE   |
+      | 'true' | 'false' |
+      |  't'   | 'f'     |
+      |  'y'   | 'n'     |
+      | 'yes'  | 'no'    |
+      |  '1'   | '0'     |
+
+    - create sample table_boolean and insert some sample data
+
+      ```
+      CREATE TABLE table_boolean(
+        product_id SERIAL PRIMARY KEY,
+        is_available boolean NOT NULL
+      );
+      ```
+
+      ```
+      INSERT INTO table_boolean(is_available)VALUES(TRUE);
+      INSERT INTO table_boolean(is_available)VALUES(FALSE);
+      INSERT INTO table_boolean(is_available)VALUES('true');
+      INSERT INTO table_boolean(is_available)VALUES('false');
+      INSERT INTO table_boolean(is_available)VALUES('t');
+      INSERT INTO table_boolean(is_available)VALUES('f');
+      INSERT INTO table_boolean(is_available)VALUES('y');
+      INSERT INTO table_boolean(is_available)VALUES('n');
+      INSERT INTO table_boolean(is_available)VALUES('yes');
+      INSERT INTO table_boolean(is_available)VALUES('no');
+      INSERT INTO table_boolean(is_available)VALUES('1');
+      INSERT INTO table_boolean(is_available)VALUES('0');
+      ```
+
+    - Querying using conditional search
+
+      - Valid literals for boolean values can be used in the _WHERE_ condition as well
+
+        ```
+        SELECT * FROM table_boolean WHERE is_available = TRUE; --works
+        SELECT * FROM table_boolean WHERE is_available = 1; ERROR:
+        SELECT * FROM table_boolean WHERE is_available = '1'; --works
+        SELECT * FROM table_boolean WHERE is_available = 0; ERROR:
+        SELECT * FROM table_boolean WHERE is_available = '0'; --works
+        SELECT * FROM table_boolean WHERE is_available = 'false'; --works
+        SELECT * FROM table_boolean WHERE is_available = 'true'; --works
+        SELECT * FROM table_boolean WHERE is_available = 't'; --works
+        SELECT * FROM table_boolean WHERE is_available = 'f'; --works
+        ```
+
+      - Using NOT condition
+        ```
+        SELECT * FROM table_boolean WHERE NOT is_available; --return false values
+        SELECT * FROM table_boolean WHERE is_available; --return true values
+        ```
+
+    - Set default values for boolean columns
+
+      ```
+      ALTER TABLE table_boolean
+      ALTER COLUMN is_available
+      SET DEFAULT FALSE;
+      ```
+
+      ```
+      INSERT INTO table_boolean(product_id)VALUES(13);
+      ```
