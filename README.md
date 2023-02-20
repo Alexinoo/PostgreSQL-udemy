@@ -1474,3 +1474,29 @@ CREATE TABLE movies_actors(
       SELECT CONCAT_WS(' | ',first_name,last_name,date_of_birth) AS "Actor Name" FROM actors
       ORDER BY first_name;
       ```
+
+- **Concatenation Techniques - How NULLS are handled**
+
+  - Are NULL values ignored ?
+
+    - Using ||
+
+      ```
+      SELECT 'Hello' || NULL || 'World'; --null
+      ```
+
+      ```
+      SELECT 'Hello' || 'NULL' || 'World'; --HelloNULLWorld
+      ```
+
+    - Using CONCAT
+
+      ```
+      SELECT CONCAT(revenues_domestic,'|',revenues_international) AS profits from movies_revenues;
+      ```
+
+    - Using CONCAT_WS (smart - ignores null values)
+
+      ```
+      SELECT CONCAT('|',revenues_domestic,revenues_international) AS profits from movies_revenues;
+      ```
