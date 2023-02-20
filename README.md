@@ -1816,3 +1816,53 @@ CREATE TABLE movies_actors(
     | Timestamptz | date,time and timestamp | 4713 BC   | 294276 AD  |
     |             |                         |           |            |
     | interval    | store values            |           |            |
+
+- **DATE data type**
+
+  - stores date values
+
+  - Uses 4 bytes to store date value
+
+  - By default , uses the format YYYY-MM-DD
+
+  - Some good useful keywords
+
+    - CURRENT_DATE (stores current date)
+
+  - Syntax
+
+    column_name DATE
+
+  - Examples :-
+
+    - Create table_dates and add sample data
+
+      ```
+      CREATE TABLE table_dates(
+        id SERIAL PRIMARY KEY,
+        employee_name VARCHAR(100) NOT NULL,
+        hire_date DATE NOT NULL,
+        add_date DATE DEFAULT CURRENT_DATE
+      );
+      ```
+
+      ```
+      INSERT INTO table_dates(employee_name,hire_date)
+      VALUES
+      ('ADAM','2020-01-01'),
+      ('LINDA','2020-02-01');
+      ```
+
+    - **Some useful functions**
+
+      - **current date**
+
+        ```
+        SELECT CURRENT_DATE;
+        ```
+
+      - **current date and time**
+
+        ```
+        SELECT NOW();
+        ```
