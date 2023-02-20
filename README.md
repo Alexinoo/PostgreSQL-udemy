@@ -1727,7 +1727,63 @@ CREATE TABLE movies_actors(
       ```
       INSERT INTO table_serial(product_name)
       VALUES
-      --('Pen'),
-      --('Pencil');
+      ('Pen'),
+      ('Pencil');
       ('Book');
+      ```
+
+- **DECIMALS NUMBERS Data type**
+
+  - Decimals rep a whole number plus a fraction of the whole number
+
+  - The fraction is rep by digits following a decimal point
+
+  - Fixed-point numbers
+
+    - numeric(precision,scale)
+
+      - _WHERE_
+
+        - _precision_ is the MAximum number of digits to the left and right of the decimal
+        - _scale_ is the number of digits allowable on the right of the decimal
+
+      - numeric(10,2) _returns 2 digits to the right of the decimal point_
+
+    - decimal(precison,scale)
+
+  - Floating-point numbers
+
+    - There are 2 type of floating-point numbers
+
+      - real - _allows precision to 6 decimal digits_
+
+      - double - _allows precision to 15 decimal points of precision_
+
+  - In Summary
+
+    | Data type        | Storage Size | Storage Type   | Range                                       |
+    | :--------------- | :----------- | :------------- | :------------------------------------------ |
+    | numeric,decimal  | variable     | fixed-point    | Upto 131072 digits before the decimal point |
+    |                  |              |                | Upto 16383 digits after the decimal point   |
+    | real             | 4 bytes      | floating point | 6 decimal digits precision                  |
+    | double precision | 8 bytes      | floating point | 15 decimal digits precision                 |
+
+  - Example
+
+    - Create table_numbers and insert some sample data
+
+      ```
+      CREATE TABLE table_numbers(
+       col_numeric numeric(20,5),
+       col_real real,
+       col_double double precision
+      );
+      ```
+
+      ```
+      INSERT INTO table_numbers(col_numeric,col_real,col_double)
+      VALUES
+      (.9,.9,.9),
+      (3.13579,3.13579,3.13579),
+      (4.1357976854,4.1357976854,4.1357976854);
       ```
