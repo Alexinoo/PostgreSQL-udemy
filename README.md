@@ -1182,3 +1182,133 @@ CREATE TABLE movies_actors(
       AND movie_lang = 'English'
       ORDER BY movie_length;
       ```
+
+- **Using LIKE and ILIKE**
+
+  - Queries data based on the matching pattern
+
+    - Returns true if the pattern matches , otherwise false
+
+    - Let's you search for patterns in strings by using 2 special characters
+
+      - % Matches any sequence of zero or more characters
+      - \_ matches any single character
+
+  - Syntax
+
+    - value LIKE pattern
+    - value ILIKE pattern
+
+  - Examples
+
+    - **Full character Search**
+
+      ```
+      SELECT 'hello' LIKE 'hello'; --true
+      ```
+
+      - returns true
+
+    - **Partial character Search using %**
+
+      ```
+      SELECT 'hello' LIKE 'h%'; --true
+      ```
+
+      ```
+      SELECT 'hello' LIKE '%e%'; --true
+      ```
+
+      ```
+      SELECT 'hello' LIKE 'hell%'; --true
+      ```
+
+      ```
+      SELECT 'hello' LIKE '%ll'; --false o is missing at the end
+      ```
+
+    - **Single character search using \_**
+
+      ```
+      SELECT 'hello' LIKE '_ello'; --true
+      ```
+
+    - **Checking occurence of search using \_**
+
+      ```
+      SELECT 'hello' LIKE '__ll__'; --false
+      ```
+
+    - **Using % and \_ together**
+
+      ```
+      SELECT 'hello' LIKE '%ll_'; --true
+      ```
+
+    - **Get all actor names where first name is starting with 'A'**
+
+      ```
+      SELECT * FROM actors
+      WHERE first_name LIKE 'A%'
+      ORDER BY first_name;
+      ```
+
+    - **Get all actor names where last name ending with 'a'**
+
+      ```
+      SELECT * FROM actors
+      WHERE last_name LIKE '%a'
+      ORDER BY last_name;
+      ```
+
+    - **Get all actors names where first name has 5 characters only**
+
+      ```
+      SELECT * FROM actors
+      WHERE first_name LIKE '_____'
+      ORDER BY first_name;
+      ```
+
+    - **Get all actors names where first name contains 'l' on the second place**
+
+      ```
+      SELECT * FROM actors
+      WHERE first_name LIKE '_l%'
+      ORDER BY first_name;
+      ```
+
+    - **Is LIKE case-sensitive..? - OOh Yes**
+
+      - Get record for actors where actor name is 'Tim'
+
+        ```
+        SELECT * FROM actors
+        WHERE first_name LIKE '%Tim%'
+        ORDER BY first_name; --returns 1 record
+        ```
+
+      - Get record for actors where actor name is 'tim'
+
+        ```
+        SELECT * FROM actors
+        WHERE first_name LIKE '%tim%'
+        ORDER BY first_name; -- returns none
+        ```
+
+    - **How about ILIKE, is this case-sensitive too..? Actually Not**
+
+      - Get record for actors where actor name is 'Tim'
+
+        ```
+        SELECT * FROM actors
+        WHERE first_name ILIKE '%Tim%'
+        ORDER BY first_name; --returns 1 record
+        ```
+
+      - Get record for actors where actor name is 'tim'
+
+        ```
+        SELECT * FROM actors
+        WHERE first_name ILIKE '%tim%'
+        ORDER BY first_name; --returns 1 record
+        ```
