@@ -1679,3 +1679,55 @@ CREATE TABLE movies_actors(
     ('ABC','ABC','ABC'),
     ('xyz','xyz','xyz');
     ```
+
+- **NUMERIC Data type**
+
+  - Number columns can hold number values but not null values
+
+  - Math operations (Add,Multiply,Divide) can be perfomed on numbers data type
+
+  - Two main types of Numbers data are :-
+
+    - Integers - Whole Numbers (+ve and -ve)
+
+    - Fixed-point , Floating point - (Two format of fractions of whole numbers)
+
+  - Integers
+
+    - Three main types of integers
+
+      - tinyint 1 byte _(0 to 255)_
+      - smallint 2 bytes _(-32768 to +32767 )_
+      - integer 4 bytes _(-2147483648 to +2147483647)_
+      - largeint 8 bytes _(-9223372036854775808 to +9223372036854775807)_
+
+    - bigint is good enough for most of the situation if not all: Numbers larger than 2.1 billion
+
+    - Db throws an error if a number is outside of it's data type range as per above stats
+
+    - Auto-increment integer data type : SERIAL - AN ANSI standard for identity columns
+
+      - For serial data type :
+
+        - smallserial - 2 bytes _(1 to 32767)_
+        - serial - 2 bytes _(1 to 2147483647)_
+        - bigserial - 8 bytes _(1 to 9223372036854775807)_
+
+  - Example :-
+
+    - Create table_serial and insert some sample data
+
+      ```
+      CREATE TABLE table_serial(
+       product_id SERIAL ,
+       product_name VARCHAR(100)
+      );
+      ```
+
+      ```
+      INSERT INTO table_serial(product_name)
+      VALUES
+      --('Pen'),
+      --('Pencil');
+      ('Book');
+      ```
