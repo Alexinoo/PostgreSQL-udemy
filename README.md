@@ -1799,3 +1799,20 @@ CREATE TABLE movies_actors(
   - Choose a big enough number type by looking at your data
 
   - With big whole numbers, use bigint only if column values constrained to fit into either smaller integer or smallint types
+
+- **Date/Time data types**
+
+  - One of the most important types
+
+  - Assigned to the variable that is supposed to store only the time value
+
+  - Below is the date /time
+
+    | Type        | Stores                  | Low value | High value |
+    | :---------- | :---------------------- | :-------- | :--------- |
+    | Date        | date only               | 4713 BC   | 294276 AD  |
+    | Time        | time only               | 4713 BC   | 5874897 AD |
+    | Timestamp   | date and time           | 4713 BC   | 294276 AD  |
+    | Timestamptz | date,time and timestamp | 4713 BC   | 294276 AD  |
+    |             |                         |           |            |
+    | interval    | store values            |           |            |
