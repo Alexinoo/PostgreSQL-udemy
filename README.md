@@ -1583,3 +1583,99 @@ CREATE TABLE movies_actors(
       ```
       INSERT INTO table_boolean(product_id)VALUES(13);
       ```
+
+- **Characters Data type**
+
+  - Character strings are general-purpose types and can be used to represent
+
+    - text
+    - numbers
+    - symbols
+    - OR a combination of the above
+
+  - There are 3 main types of character data
+
+    - CHARACTER(n) - CHAR(n) - _fixed-length (blank padded)_
+    - CHARACTER VARYING(n) VARCHAR(n) - _variable-length with length limit_
+    - TEXT , VARCHAR - _variable unlimited length_
+
+      - _WHERE_
+
+        - n is the number of characters that the column holds (,f not provide,default is 1)
+
+      - _if the excessive characters are all spaces ,PostgreSQL truncates the spaces to the maximum length (n) and stores the characters_
+
+  - CHARACTER(n) , CHAR(n)
+
+    - char(10) will store 10 character length
+    - if you insert less than 10 ,PostgreSQL will pad the rest of the column with spaces
+    - if you insert more than 10 ,PostgreSQL will truncate to the max that it can store
+    - _if n is not specified, default is 1_
+
+    - Example:
+
+      ```
+      SELECT CAST('Alex' AS character(10)) AS "Name"; --"Alex      " --CAST - datatype conversion fn
+
+      Similar to:-
+
+      SELECT 'Alex'::char(10) AS "Name";--"Alex      "
+
+      Combining both:-
+
+      SELECT
+         CAST('Alex' AS character(10)) AS "Name",
+         'Alex'::char(10) AS "Name2";
+
+      Output is exactly the same:
+        "Alex      "
+        "Alex      "
+      ```
+
+    - Use cases :
+      - country codes (US,UK,JP...) - char(2)
+
+  - CHARACTER VARYING(n) , VARCHAR(n) - variable-length with length limit
+
+    - useful if entries in a column can vary but you don't want PostgreSQL to pad the fields with blanks
+    - stores the number of characters provided. _Save space! :)_
+    - if more characters are provided than the max, the rest from maximum are truncated
+    - no default value exist for this type
+    - _n rep max no of characters the col can hold_
+
+    - Examples :
+
+      ```
+      SELECT 'Alex'::varchar(10) AS Name; --"Alex"
+      SELECT 'THIS IS A TEST FROM THE SYSTEM'::varchar(10) AS Random; --""THIS IS A ""
+      SELECT 'ABCD 123 $%#@!'::varchar(20); --"ABCD 123 $%#@!"
+      ```
+
+  - TEXT - variable-length column , any size
+
+    - variable-length column type
+    - unlimited length (per PostgreSQL says max is 1GB)
+    - Not part of SQL standard , but similar type available in Microsoft SQL server and MySQL
+
+    - Examples :
+
+      ```
+      SELECT 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.'::text AS "Lorem Ipsum";
+      ```
+
+  - Create a Table for all character types & insert sample data
+
+    ```
+    CREATE TABLE table_characters(
+      col_char CHAR(10),
+      col_varchar VARCHAR(10),
+      col_text TEXT
+    );
+    ```
+
+    ```
+    INSERT INTO table_characters (col_char,col_varchar,col_text)
+    VALUES
+    ('ABC','ABC','ABC'),
+    ('xyz','xyz','xyz');
+    ```
