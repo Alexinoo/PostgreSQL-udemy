@@ -1787,3 +1787,15 @@ CREATE TABLE movies_actors(
       (3.13579,3.13579,3.13579),
       (4.1357976854,4.1357976854,4.1357976854);
       ```
+
+- **Selecting Numbers Data types**
+
+  - Use integers whenever possible
+
+  - Decimal data and calculations needs to be exact, then use numeric or decimal
+
+  - Float will save space, but be careful about inexactness
+
+  - Choose a big enough number type by looking at your data
+
+  - With big whole numbers, use bigint only if column values constrained to fit into either smaller integer or smallint types
