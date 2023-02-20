@@ -1312,3 +1312,101 @@ CREATE TABLE movies_actors(
         WHERE first_name ILIKE '%tim%'
         ORDER BY first_name; --returns 1 record
         ```
+
+- **Using IS NULL and IS NOT NULL keywords**
+
+  - IS NULL operator checks if a value is NULL
+
+    - Returns only null values
+
+  - IS NOT NULL operator checks if a value is NOT NULL
+
+    - Returns only null values
+
+  - **Syntax**
+
+    ```
+    SELECT columnlist FROM tablename WHERE columnname IS NULL
+    ```
+
+    ```
+    SELECT columnlist FROM tablename WHERE columnname IS NOT NULL
+    ```
+
+  - **Examples**
+
+    - Get a list of actors with missing date_of_birth
+
+      ```
+      SELECT * FROM actors
+      WHERE date_of_birth IS NULL;
+      ```
+
+    - Get a list of actors with missing birth date or missing first name
+
+      ```
+      SELECT * FROM actors
+      WHERE date_of_birth IS NULL
+      OR first_name IS NULL
+      ORDER BY first_name;
+      ```
+
+    - Get a list of movies where domestic revenues is null
+
+      ```
+      SELECT * FROM movies_revenues
+      WHERE revenues_domestic IS NULL;
+      ```
+
+    - Get a list of movies where either domestic revenues or international revenues is null
+
+      ```
+      SELECT * FROM movies_revenues
+      WHERE revenues_domestic IS NULL
+      OR revenues_international IS NULL;
+      ```
+
+    - Get a list of movies where either domestic revenues and international revenues is null
+
+      ```
+      SELECT * FROM movies_revenues
+      WHERE revenues_domestic IS NULL
+      AND revenues_international IS NULL;
+      ```
+
+    - Get a list of movies where domestic revenues are not null
+
+      ```
+      SELECT * FROM movies_revenues
+      WHERE revenues_domestic IS NOT NULL;
+      ```
+
+  - **How about using the following instead of NULL**
+
+    - = NULL
+
+      ```
+      SELECT * FROM actors
+      WHERE date_of_birth = NULL; -- returns 0 records
+      ```
+
+    - = 'NULL'
+
+      ```
+      SELECT * FROM actors
+      WHERE date_of_birth = 'NULL'; --ERROR:  invalid input syntax for type date: "NULL"
+      ```
+
+    - = ""
+
+      ```
+      SELECT * FROM actors
+      WHERE date_of_birth = ""; --ERROR:  zero-length delimited identifier at or near """"
+      ```
+
+    - = ' '
+
+      ```
+      SELECT * FROM actors
+      WHERE date_of_birth = ' ';--ERROR:  invalid input syntax for type date: " "
+      ```
