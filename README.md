@@ -1410,3 +1410,67 @@ CREATE TABLE movies_actors(
       SELECT * FROM actors
       WHERE date_of_birth = ' ';--ERROR:  invalid input syntax for type date: " "
       ```
+
+- **Concatenation Techniques**
+
+  - To concatenate 2 or more strings into one , we use concatenation operator ||
+
+    - Combining Strings together
+
+      ```
+      SELECT 'string1' || 'string2' AS new_string;
+      ```
+
+    - Combining columns together
+
+      ```
+      SELECT CONCAT(column1,column2) AS new_string;
+      ```
+
+    - Combining columns together using CONCAT_WS
+
+      - CONCAT_WS - concatenates strings into one separated by a particular operator
+
+        ```
+        SELECT CONCAT_WS('|',column1,column2) AS new_string;
+        ```
+
+  - **Examples**
+
+    - Combine string 'Hello' and 'World'
+
+      ```
+      SELECT 'Hello' || 'World' AS new_string;
+      ```
+
+      - Adding some space between
+
+        ```
+        SELECT 'Hello' ||' '|| 'World' AS new_string;
+        ```
+
+    - Combine actor first name and last name into 'Actor Name'
+
+      ```
+      SELECT CONCAT(first_name,last_name) AS "Actor Name" FROM actors
+      ORDER BY first_name;
+      ```
+
+    - Add a separator between first name and last name
+
+      ```
+      SELECT CONCAT(first_name,' ',last_name) AS "Actor Name" FROM actors
+      ORDER BY first_name;
+      ```
+
+    - Print first name , last name and dob separated by a comma
+
+      ```
+      SELECT CONCAT_WS(', ',first_name,last_name,date_of_birth) AS "Actor Name" FROM actors
+      ORDER BY first_name;
+      ```
+
+      ```
+      SELECT CONCAT_WS(' | ',first_name,last_name,date_of_birth) AS "Actor Name" FROM actors
+      ORDER BY first_name;
+      ```
