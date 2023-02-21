@@ -1866,3 +1866,96 @@ CREATE TABLE movies_actors(
         ```
         SELECT NOW();
         ```
+
+- **TIME data type**
+
+  - Stores time of the day values
+
+  - Takes 8 bytes to store time
+
+  - Syntax
+
+    - columnname TIME (precision) - time without time zone
+
+      - _WHERE_
+
+        - _precision is the number of fractional digits placed in the 2nd field precision up to 6 digits_
+
+  - **Common Formats**
+
+    - HH:MM - _10:30_ (Hours:Min)
+    - HH:MM:SS - _10:30:25_ , 23:59:59 (Hours:Min:Sec)
+    - HHMMSS - _103030_ (HoursMinSec)
+
+    - MM:SS.pppppp - 03:59.999999
+    - HH:MM:SS.pppppp - 03:05:08.777777
+    - HHMMSS.pppppp - 030508.777777
+
+      - _where pppppp is the precision can be upto 6 digits_
+
+  - Example :-
+
+    - Create table_time and insert sample data
+
+      ```
+      CREATE TABLE table_time(
+        id serial PRIMARY KEY,
+        class_name VARCHAR(100) NOT NULL,
+        start_time TIME NOT NULL,
+        end_time TIME NOT NULL
+      );
+      ```
+
+      ```
+      INSERT INTO table_time(class_name,start_time,end_time)
+      VALUES
+      ('MATH','08:00:00','09:00:00'),
+      ('CHEM','09:01:00','10:00:00');
+      ```
+
+    - **Some useful functions**
+
+      - **current time**
+
+        ```
+        SELECT CURRENT_TIME; --returns time with time zone
+        ```
+
+      - **current time with precision**
+
+        ```
+        SELECT CURRENT_TIME(4); --20:45:45.222400+03:00
+        SELECT CURRENT_TIME(2); --20:45:45.220000+03:00
+        SELECT CURRENT_TIME(6); --20:45:45.222489+03:00
+        ```
+
+      - **local time**
+
+        ```
+        SELECT LOCALTIME; --20:48:11.248216
+        SELECT LOCALTIME(4); --20:48:11.248216 (with precision)
+        ```
+
+      - **Perfom Arithmetic operations**
+
+        ```
+        SELECT time '12:00' - time '04:00' AS RESULT; --08:00:00
+        ```
+
+      - **Using Interval**
+
+        - interval 'n type'
+
+          - _WHERE_ n rep a number and type could be (second,min ,hrs,day,month,year etc)
+
+          ```
+          SELECT
+          CURRENT_TIME,
+          CURRENT_TIME + interval '2 hours' AS result; --Adds 2 hrs to the current time
+          ```
+
+          ```
+          SELECT
+          CURRENT_TIME,
+          CURRENT_TIME + interval '-2 hours' AS result; --Subtract 2 hrs from the current time
+          ```
