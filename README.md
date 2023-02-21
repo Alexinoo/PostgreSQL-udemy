@@ -1959,3 +1959,68 @@ CREATE TABLE movies_actors(
           CURRENT_TIME,
           CURRENT_TIME + interval '-2 hours' AS result; --Subtract 2 hrs from the current time
           ```
+
+- **TIMESTAMP AND TIMESTAMPTZ data type**
+
+  - Allows to store date and time together
+
+    - Timestamp - time without timezone
+
+    - Timestamptz - time with timezone
+
+      - **Timezone Handling**
+
+        - Internally stored value is always in UTC (Universal Coordinated Time) traditionally known as Greenwich Mean Time (GMT)
+
+      - **Adding a Timestamptz**
+
+        - An INPUT value that has explicit time zone specified is converted to UTC using the appropriate offset for that time zone
+
+        - If no time zone is stated in the input string , then it is assumed to be in the time zone indicated by the system's TimeZone parameter , and is converted to UTC using the offset for the timezone zone
+
+      - **Output a Timestamptz**
+
+        - When a timestamptz value is output, it is always converted from UTC to the current timezone zone, and displayed as local time in that zone
+
+  - Examples :
+
+    - Create table_time_tz and add sample data
+
+      ```
+      CREATE TABLE table_time_tz (
+        ts TIMESTAMP,
+        tstz TIMESTAMPTZ
+      );
+
+      INSERT INTO table_time_tz(ts,tstz)
+      VALUES ('2020-02-22 10:10:10-03:00','2020-02-22 10:10:10-03:00');
+      ```
+
+      - Show current timezone
+
+        ```
+        SHOW TIMEZONE; --Africa/Nairobi
+        ```
+
+      - Current timestamp
+
+        ```
+        SELECT CURRENT_TIMESTAMP; --2023-02-21 22:20:28.758737+03
+        ```
+
+      - Current time of the day
+
+        ```
+        SELECT TIMEOFDAY(); --Tue Feb 21 22:22:02.265429 2023 EAT
+        ```
+
+      - Using timezone() to convert time based on a timezone
+
+        - show timezone variations
+
+          ```
+          SELECT timezone('Asia/Singapore','2023-02-21 10:29:00'); --2023-02-21 15:29:00
+          SELECT timezone('America/Los_angeles','2023-02-21 10:26:00'); -- 2023-02-20 23:28:00
+          SELECT timezone('America/New_York','2023-02-21 10:26:00'); -- 2023-02-21 02:26:00
+          SELECT timezone('Africa/Nairobi','2023-02-21 10:26:00'); --2023-02-21 10:27:00
+          ```
