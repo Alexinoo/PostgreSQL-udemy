@@ -2073,7 +2073,7 @@ CREATE TABLE movies_actors(
 
   - Example
 
-    - Create table_time_tz and add sample data
+    - Create table_uuid and add sample data
 
       ```
       CREATE TABLE table_uuid(
@@ -2096,3 +2096,60 @@ CREATE TABLE movies_actors(
       INSERT INTO table_uuid(product_name) VALUES('ABCDE');
       INSERT INTO table_uuid(product_name) VALUES('ABCDEF');
       ```
+
+- **Array Data type**
+
+  - allows columns of a table to be defined as variable-length multidimensional arrays.
+
+  - Every data type has its own companion array type
+
+    - e.g.
+
+      - integer has an integer[] array type
+      - character has character[] array type
+
+  - An array datatype is named by appending square brackets [] to the data type name of the array elements
+
+  - Syntax
+
+    - variable_name DATATYPE [];
+
+    - phone TEXT []
+
+  - Example
+
+        - Create table_array and add sample data
+
+          ```
+          CREATE TABLE table_array(
+            id SERIAL PRIMARY KEY ,
+            name VARCHAR(100),
+            phone TEXT [] --our array
+          );
+
+          INSERT INTO table_array(name,phone)
+          VALUES('John Doe',ARRAY [ '(801)-589-4567','(819)-555-2222' ]);
+
+          INSERT INTO table_array(name,phone)
+          VALUES('John Doe',ARRAY [ '(201)-123-5846','(214)-222-3333' ]);
+          ```
+
+        - You can also use curly braces as follows:
+
+          ```
+          INSERT INTO contacts (name, phones)
+           VALUES
+           ('Lily Bush','{"(408)-589-5841"}'),
+           ('William Gate','{"(408)-589-5842","(408)-589-58423"}');
+          ```
+
+        - Query data
+
+          ```
+          SELECT name,phone[1] FROM table_array; --returns the first array element (index-1 based)
+          ```
+
+          ```
+          SELECT name FROM table_array
+          WHERE phone[1] = '(214)-222-3333'; --returns John Doe
+          ```
