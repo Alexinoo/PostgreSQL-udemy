@@ -2211,3 +2211,118 @@ CREATE TABLE movies_actors(
 
       SELECT title,book_info -> 'e_cost' AS "Electronic Cost" FROM table_hstore;
       ```
+
+- **json Data type**
+
+  - PostgreSQL has two native data types to store JSON documents:
+
+    - JSON
+
+      - is a blob (Binary Large Object) that stores JSON data in raw format, preserving even insignificant things such as whitespace, the order of keys in objects, or even duplicate keys in objects.
+
+      - offers limited querying capabilities, and it's slow because it needs to load and parse the entire JSON blob each time.
+
+    - JSONB
+      - stores data in binary format
+      - More powerful - it allows the contents to be indexed and queried with ease.
+
+  - Example
+
+    - Create table_json and add sample data
+
+      ```
+      CREATE TABLE table_json(
+        id SERIAL PRIMARY KEY,
+        docs json
+      );
+
+      INSERT INTO table_json(docs)
+      VALUES
+      ('[1,2,3,4,5,6]'), --option-1 []
+      ('{"name":"Alex"}'); --option-2 {}
+
+      SELECT docs FROM table_json;
+      ```
+
+    - Search specific data in JSON column (Containment operator @>)
+
+      - The containment operator @> tests whether one document contains another.
+
+        ```
+        SELECT * FROM table_json
+        WHERE docs @> '2';
+        ```
+
+        - WON'T Work!! - Need to convert into jsonb first
+
+          ```
+          ALTER TABLE table_json
+          ALTER COLUMN docs
+          TYPE JSONB;
+          ```
+
+        - WORKS NOW !!!
+
+          ```
+          SELECT * FROM table_json
+          WHERE docs @> '2';
+          ```
+
+    - Indexing JSONB
+
+      ```
+      CREATE INDEX ON table_json USING GIN (docs jsonb_path_ops);
+      ```
+
+  - JSONB Functions
+
+        - jsonb_each()
+
+          - Expands the top-level JSON document into a set of key-value pairs.
+
+            ```
+            select jsonb_each( '{"name": "Alice", "agent": {"bot": true} }'::jsonb );
+
+            --returns
+
+              (name,"Alice")
+              (agent,"{"bot": true}")
+            ```
+
+        - jsonb_object_keys()
+
+          - Returns the keys of the top-level JSON document.
+
+            ```
+            select jsonb_object_keys( '{"name": "Alice", "agent": {"bot": true} }'::jsonb );
+
+            --returns name,agent
+            ```
+
+        - jsonb_extract_path()
+
+          - Returns a JSON object that is traversed by a "path".
+
+            ```
+            select jsonb_extract_path( '{"name": "Alice", "agent": {"bot": true} }'::jsonb, 'agent', 'bot');
+
+            -returns true
+            ```
+
+        - jsonb_pretty()
+
+          - PostgreSQL returns a compact representation which works for machine consumption
+
+          - If you want your JSON documents pretty printed for human consumption, use jsonb_pretty()
+
+            ```
+            select jsonb_pretty( '{"name": "Alice", "agent": {"bot": true} }'::jsonb );
+
+            -- returns the following
+                {
+                  "name": "Alice",
+                  "agent": {
+                           "bot": true
+                        }
+            }
+            ```
