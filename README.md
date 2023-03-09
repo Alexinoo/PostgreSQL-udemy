@@ -2153,3 +2153,61 @@ CREATE TABLE movies_actors(
           SELECT name FROM table_array
           WHERE phone[1] = '(214)-222-3333'; --returns John Doe
           ```
+
+- **hstore Data type**
+
+  - Definition
+
+    - hstore is a datatype that stores data into key-value pairs (close to how we store data in json)
+
+    - hstore module implements the hstore data type
+
+    - the keys and values are just text strings only
+
+  - Usage
+
+    - Install/enable hstore extension first
+
+      ```
+      CREATE EXTENSION IF NOT EXISTS hstore;
+      ```
+
+  - Example
+
+    - Create table_hstore and add sample data
+
+      ```
+      CREATE TABLE table_hstore(
+        book_id SERIAL PRIMARY KEY,
+        title VARCHAR(100) NOT NULL,
+        book_info hstore
+      );
+
+      INSERT INTO table_hstore(title,book_info)
+      VALUES
+      ('Atomic Habits',
+      '
+        "author" => "James Clear",
+        "publisher" => "Warner group",
+        "paper_cost" => "$9.99",
+        "e_cost" => "$5.99"
+      ');
+
+      INSERT INTO table_hstore(title,book_info)
+      VALUES
+      ('Rich Dad Poor Dad',
+      '
+        "author" => "Robert T. Kiyosaki",
+        "publisher" => "Warner group",
+        "paper_cost" => "$9.99",
+        "e_cost" => "$5.99"
+      ');
+      ```
+
+    - Query with a specific store value (-> operator)
+
+      ```
+      SELECT title,book_info -> 'author' AS Author FROM table_hstore;
+
+      SELECT title,book_info -> 'e_cost' AS "Electronic Cost" FROM table_hstore;
+      ```
