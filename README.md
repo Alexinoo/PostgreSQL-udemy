@@ -2326,3 +2326,74 @@ CREATE TABLE movies_actors(
                         }
             }
             ```
+
+- **Network Addresses Data type**
+
+  - Network Address types
+
+    - PostgreSQL offers data types to store IPv4, IPv6, and MAC addresses
+
+      | Name     | Storage Size  | Description                      |
+      | :------- | :------------ | :------------------------------- |
+      | cidr     | 7 or 19 bytes | IPv4 and IPv6 networks           |
+      | inet     | 7 or 19 bytes | IPv4 and IPv6 hosts and networks |
+      | macaddr  | 6 bytes       | MAC addresses                    |
+      | macaddr8 | 8 bytes       | MAC addresses (EUI-64 format)    |
+
+    - It is better to use these types instead of plain text types to store network addresses, because these types offer input error checking and specialized operators and functions
+
+    - cidr and inet mostly common
+
+  - Special sorting mechanisms
+
+    - When sorting inet or cidr data types, IPv4 addresses will always sort before IPv6 addresses, including IPv4 addresses encapsulated or mapped to IPv6 addresses, such as ::10.2.3.4 or ::ffff:10.4.3.2.
+
+  - Example
+
+    - Let's build a sample table with an IP address for IPv4 and IPv6 network address type .i.e inet
+
+      ```
+      CREATE TABLE table_netaddr(
+        id SERIAL PRIMARY KEY,
+        ip INET
+      );
+
+      INSERT INTO table_netaddr(ip)
+      VALUES
+      ('4.35.221.243'),
+      ('4.152.207.126'),
+      ('4.152.207.238'),
+      ('4.249.111.162'),
+      ('12.1.223.132'),
+      ('12.8.192.60');
+      ```
+
+    - Functions that we can use on ip addresses entries
+
+      - set_masklen() - set netmask length for inet value
+
+        ```
+        SELECT ip, set_masklen(ip,24) AS inet_24 FROM table_netaddr;
+        ```
+
+    - Convert inet to cidr type
+
+      ```
+       SELECT
+        ip,
+        set_masklen(ip,24) AS inet_24,
+        set_masklen(ip::cidr,24) AS cidr_24
+       FROM table_netaddr;
+      ```
+
+    - Analyze other network like /27 , /28
+
+      ```
+      SELECT
+       ip,
+       set_masklen(ip,24) AS inet_24,
+       set_masklen(ip::cidr,24) AS cidr_24,
+       set_masklen(ip::cidr,27) AS cidr_27,
+       set_masklen(ip::cidr,28) AS cidr_28
+      FROM table_netaddr;
+      ```
