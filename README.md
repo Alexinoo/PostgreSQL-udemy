@@ -2397,3 +2397,159 @@ CREATE TABLE movies_actors(
        set_masklen(ip::cidr,28) AS cidr_28
       FROM table_netaddr;
       ```
+
+## Section 7: Modifying Table Structures - Add Constraints
+
+- **Create Sample Database MYDATA - Add Columns**
+
+  ```
+  CREATE DATABASE MYDATA;
+  ```
+
+  - Create Persons table
+
+    ```
+      CREATE TABLE persons(
+        person_id SERIAL PRIMARY KEY,
+        first_name VARCHAR(20) NOT NULL,
+        last_name VARCHAR(20) NOT NULL
+      );
+    ```
+
+  - **Add 2 columns - age , nationality , email-unique**
+
+    ```
+    ALTER TABLE persons
+    ADD COLUMN age INT NOT NULL;
+    ```
+
+    ```
+    ALTER TABLE persons
+    ADD COLUMN nationality VARCHAR(20) NOT NULL,
+    ADD COLUMN email VARCHAR(100) UNIQUE
+    ```
+
+- **Modify Table Structures - Add/Modify Columns**
+
+  - **Rename a table**
+
+    ```
+    ALTER TABLE persons
+    RENAME TO users;
+    ```
+
+  - **Rename a column**
+
+    ```
+    ALTER TABLE persons
+    RENAME COLUMN age TO person_age;
+    ```
+
+  - **Drop a column**
+
+    ```
+    ALTER TABLE persons
+    DROP COLUMN person_age;
+    ```
+
+  - **Change Data type of a column**
+
+        ```
+        ALTER TABLE persons
+        ALTER COLUMN age TYPE int;
+        ```
+
+        - **WON'T WORK !!!**
+        - **ERROR: column "age" cannot be cast automatically to type integer**
+        - **HINT: You might need to specify "USING age::integer".SQL state: 42804**
+        - **Means you cannot varchar(10) directly to int**
+
+          ```
+          ALTER TABLE persons
+          ALTER COLUMN age TYPE int
+          USING age::integer;
+          ```
+
+        - The above works now
+
+  - **Set a default value of a Column**
+
+    - **Add a new column to persons table**
+
+      ```
+      ALTER TABLE persons
+      ADD COLUMN is_enable VARCHAR(1);
+      ```
+
+    - **Set a default value**
+
+      ```
+      ALTER TABLE persons
+      ALTER COLUMN is_enable SET DEFAULT 'Y';
+      ```
+
+      - **Add sample data**
+
+      ```
+      INSERT INTO persons(first_name,last_name,nationality,age)
+      VALUES
+      ('Jane','Doe','Kenyan',32);
+      ```
+
+- **Add constraints to columns**
+
+  - Create table web_links and add sample data
+
+    ```
+    CREATE TABLE web_links(
+      link_id SERIAL PRIMARY KEY,
+      link_url VARCHAR(255) NOT NULL,
+      link_target VARCHAR(20)
+    );
+
+    INSERT INTO web_links(link_url,link_target)
+    VALUES
+    ('https://www.google.com','_blank');
+    ```
+
+  - **Add UNIQUE CONSTRAINT to link_url Column**
+
+    ```
+    ALTER TABLE web_links
+    ADD CONSTRAINT unique_web_url UNIQUE(link_url);
+    ```
+
+  - **Set a column to accept only defined allowed/acceptable values**
+
+    - **Add is_enable column**
+
+      ```
+      ALTER TABLE web_links
+      ADD COLUMN is_enable VARCHAR(2);
+
+      INSERT INTO web_links(link_url,link_target,is_enable)
+      VALUES
+      ('https://www.amazon.com','_blank','Y');
+      ```
+
+    - **Set is_enable to allow Y/N only**
+
+      ```
+      ALTER TABLE web_links
+      ADD CHECK (is_enable IN ('Y','N'));
+
+      INSERT INTO web_links(link_url,link_target,is_enable)
+      VALUES
+      ('https://www.citi.com','_blank','Q');
+
+
+      --ERROR:  new row for relation "web_links" violates check constraint "web_links_is_enable_check"
+
+      UPDATE web_links
+      SET is_enable = 'Y'
+      WHERE link_id = 1; --Success
+
+      UPDATE web_links
+      SET is_enable = 'Q'
+      WHERE link_id = 2; --ERROR:  new row for relation "web_links" violates check constraint "web_links_is_enable_check"
+      ```
