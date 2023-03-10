@@ -2553,3 +2553,252 @@ CREATE TABLE movies_actors(
       SET is_enable = 'Q'
       WHERE link_id = 2; --ERROR:  new row for relation "web_links" violates check constraint "web_links_is_enable_check"
       ```
+
+## Section 8: Data type Conversions
+
+- **What is a data type conversion**
+
+  - Type Conversion is the conversion of ORIGINAL data type to ANOTHER data type
+
+  - There are 2 types of conversions
+
+    - **Implicit**
+
+      - Data conversion is done AUTOMATICALLY by PostgreSQL engine
+
+    - **Explicit**
+
+      - done via 'conversion functions' e.g. CAST or ::
+
+  - Examples
+
+    - integer = integer
+
+      ```
+      SELECT * FROM movies
+      WHERE movie_id = 1; --same data type, so NO conversion
+      ```
+
+    - integer = string
+
+      ```
+      SELECT * FROM movies
+      WHERE movie_id = '1'; --PostgreSQL does the conversion here .i.e. Implicit
+      ```
+
+    - Explicit conversion
+
+      ```
+      SELECT * FROM movies
+      WHERE movie_id = integer '1'; --Explicit conversion
+      ```
+
+- **Using CAST for data conversions**
+
+  - PostgreSQL CAST operator is used to covert a value of one type to another data type
+
+  - Syntax : CAST (expression AS target_data_type)
+
+    - WHERE
+
+      - _expression_ - represents a constant , a table column or an expression
+
+      - _target data type_ - rep
+
+        - Boolean
+        - Character (char , varchar, text)
+        - Numeric (integer, floating point number)
+        - array
+        - JSON
+        - UUID
+        - hstore (stores as key/value pairs)
+        - Temporal type (date , time,timestamp,interval)
+        - Special type (network address , geometric data)
+
+  - Example
+
+    - **String to Integer conversion**
+
+      ```
+      SELECT CAST('10' AS INTEGER); --SUCCESS
+      SELECT CAST('10n' AS INTEGER); --ERROR:  invalid input syntax for integer: "10n"
+      ```
+
+    - **String to Date conversion**
+
+      ```
+      SELECT
+        CAST('2020-01-01' AS DATE),
+        CAST('01-MAY-2020' AS DATE);
+      ```
+
+    - **String to Boolean conversion**
+
+      ```
+      SELECT
+       CAST('true' AS BOOLEAN),
+       CAST('false' AS BOOLEAN),
+       CAST('T' AS BOOLEAN),
+       CAST('F' AS BOOLEAN);
+      ```
+
+      ```
+      SELECT
+        CAST('0' AS BOOLEAN),
+        CAST('1' AS BOOLEAN);
+      ```
+
+    - **String to Double conversion**
+
+      ```
+      SELECT
+        CAST('14.7888' AS DOUBLE PRECISION );
+      ```
+
+    - **You can also use the folllowing syntax for conversion directly too**
+
+      ```
+      expression::type
+      ```
+
+      ```
+      SELECT
+        '10'::INTEGER,
+        '2020-01-01'::DATE,
+        '01-01-2020'::DATE;
+      ```
+
+    - **String to Timestamp conversion**
+
+      ```
+      SELECT
+        '2020-02-20 10:30:25.467'::TIMESTAMP; --Without timezone "2020-02-20 10:30:25.467"
+      ```
+
+      ```
+      SELECT
+        '2020-02-20 10:30:25.467'::TIMESTAMPTZ; --With timezone "2020-02-20 10:30:25.467+03"
+      ```
+
+    - **String to interval conversion**
+
+      ```
+      SELECT
+        '10 minute'::interval,
+        '4 hour'::interval,
+        '1 day'::interval,
+        '2 week'::interval,
+        '5 month'::interval;
+      ```
+
+      | interval | interval | interval | interval | interval |
+      | :------- | :------- | :------- | :------- | :------- |
+      | 00:10:00 | 04:00:00 | 1 day    | 14 days  | 5 mons   |
+
+- **Implicit to Explicit conversions**
+
+  - **Using integer and factorial**
+
+    ```
+    SELECT 20 !;
+    ```
+
+    | ?column?            |
+    | :------------------ |
+    | 2432902008176640000 |
+
+    ```
+    SELECT 20 ! AS Result;
+    ```
+
+    | Result              |
+    | :------------------ |
+    | 2432902008176640000 |
+
+  - **Round with numeric**
+
+    ```
+    SELECT ROUND(10,4) AS result;
+    ```
+
+    | Result  |
+    | :------ |
+    | 10.0000 |
+
+    ```
+    SELECT ROUND(CAST(10 AS NUMERIC),4) AS result; --more explicit
+    ```
+
+    | Result  |
+    | :------ |
+    | 10.0000 |
+
+  - **Using CAST with Text**
+
+    - SUBSTR - Takes some part of the string starting from the specified position
+
+      ```
+      SELECT SUBSTR('123456',2) AS Result;
+      ```
+
+      | Result |
+      | :----- |
+      | 23456  |
+
+      ```
+      SELECT
+        SUBSTR('123456',2) AS Implicit,
+        SUBSTR(CAST('123456' AS TEXT),4) AS Explicit;
+      ```
+
+      | Implicit | Explicit |
+      | :------- | :------- |
+      | 23456    | 456      |
+
+- **Table data conversion**
+
+  - Create table 'ratings' with initial data as characters and insert some sample data
+
+    ```
+    CREATE TABLE ratings(
+      rating_id SERIAL PRIMARY KEY,
+      rating VARCHAR(1) NOT NULL
+    );
+
+    INSERT INTO ratings(rating)
+    VALUES
+    ('A'),
+    ('B'),
+    ('C'),
+    ('D');
+
+    ```
+
+  - Now say the business requirement changes and they want all ratings to be numeric
+
+    - so let's add some integer data
+
+      ```
+      INSERT INTO ratings(rating)
+      VALUES
+      (1),
+      (2),
+      (3),
+      (4);
+      ```
+
+    - Then convert all values in the rating column into integers
+
+    - Use CAST to change all non numeric data into integers
+
+      ```
+      SELECT
+        rating_id,
+        CASE
+          WHEN rating~E'^\\d+$'THEN
+            CAST(rating AS INTEGER)
+          ELSE
+            0
+        END AS rating
+      FROM ratings;
+      ```
