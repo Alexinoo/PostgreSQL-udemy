@@ -2802,3 +2802,324 @@ CREATE TABLE movies_actors(
         END AS rating
       FROM ratings;
       ```
+
+## Section 8: Conversion Functions
+
+- **TO_CHAR()**
+
+  - PostgreSQL TO_CHAR() converts
+
+    - a timestamp
+    - an interval
+    - an integer
+    - a double precision or
+    - a numeric value
+
+      - **to a string**
+
+  - Syntax TO_CHAR(expression, format )
+
+  - TO_CHAR() function requires two arguments:
+
+    - WHERE
+
+      - _expression_ can be a timestamp, an interval, an integer, a double precision, or a numeric value that is converted to a string according to a specific format.
+
+      - _format_ rep
+
+        - valid numeric format strings:
+
+          | Format   | Description                                                              |
+          | :------- | :----------------------------------------------------------------------- |
+          | 9        | Numeric value with the specified number of digits                        |
+          | 0        | Numeric value with leading zeros                                         |
+          | .        | (period) decimal point                                                   |
+          | D        | decimal point that uses locale                                           |
+          | ,        | (comma) group (thousand) separator                                       |
+          | FM       | Fill mode, which suppresses padding blanks and leading zeroes.           |
+          | PR       | Negative value in angle brackets.                                        |
+          | S        | Sign anchored to a number that uses locale                               |
+          | L        | Currency symbol that uses locale                                         |
+          | G        | Group separator that uses locale                                         |
+          | MI       | Minus sign in the specified position for numbers that are less than 0.   |
+          | PL       | Plus sign in the specified position for numbers that are greater than 0. |
+          | SG       | Plus / minus sign in the specified position                              |
+          | RN       | Roman numeral that ranges from 1 to 3999                                 |
+          | TH or th | Upper case or lower case ordinal number suffix                           |
+
+        - valid numeric format strings:
+
+          | Pattern                  | Description                                                                                      |
+          | :----------------------- | :----------------------------------------------------------------------------------------------- |
+          | Y,YYY                    | year in 4 digits with comma                                                                      |
+          | YYYY                     | year in 4 digits                                                                                 |
+          | YYY                      | last 3 digits of year                                                                            |
+          | YY                       | last 2 digits of year                                                                            |
+          | Y                        | The last digit of year                                                                           |
+          | IYYY                     | ISO 8601 week-numbering year (4 or more digits)                                                  |
+          | IYY                      | Last 3 digits of ISO 8601 week-numbering year                                                    |
+          | IY                       | Last 2 digits of ISO 8601 week-numbering year                                                    |
+          | I                        | Last digit of ISO 8601 week-numbering year                                                       |
+          | BC, bc, AD or ad         | Era indicator without periods                                                                    |
+          | B.C., b.c., A.D. ora.d.  | Era indicator with periods                                                                       |
+          | MONTH                    | English month name in uppercase                                                                  |
+          | Month                    | Full capitalized English month name                                                              |
+          | month                    | Full lowercase English month name                                                                |
+          | MON                      | Abbreviated uppercase month name e.g., JAN, FEB, etc.                                            |
+          | Mon                      | Abbreviated capitalized month name e.g, Jan, Feb, etc.                                           |
+          | mon                      | Abbreviated lowercase month name e.g., jan, feb, etc.                                            |
+          | MM                       | month number from 01 to 12                                                                       |
+          | DAY                      | Full uppercase day name                                                                          |
+          | Day                      | Full capitalized day name                                                                        |
+          | day                      | Full lowercase day name                                                                          |
+          | DY                       | Abbreviated uppercase day name                                                                   |
+          | Dy                       | Abbreviated capitalized day name                                                                 |
+          | dy                       | Abbreviated lowercase day name                                                                   |
+          | DDD                      | Day of year (001-366)                                                                            |
+          | IDDD                     | Day of ISO 8601 week-numbering year (001-371; day 1 of the year is Monday of the first ISO week) |
+          | DD                       | Day of month (01-31)                                                                             |
+          | D                        | Day of the week, Sunday (1) to Saturday (7)                                                      |
+          | ID                       | ISO 8601 day of the week, Monday (1) to Sunday (7)                                               |
+          | W                        | Week of month (1-5) (the first week starts on the first day of the month)                        |
+          | WW                       | Week number of year (1-53) (the first week starts on the first day of the year)                  |
+          | IW                       | Week number of ISO 8601 week-numbering year (01-53; the first Thursday of the year is in week 1) |
+          | CC                       | Century e.g, 21, 22, etc.                                                                        |
+          | J                        | Julian Day (integer days since November 24, 4714 BC at midnight UTC)                             |
+          | RM                       | Month in upper case Roman numerals (I-XII; >                                                     |
+          | rm                       | Month in lowercase Roman numerals (i-xii; >                                                      |
+          | HH                       | Hour of day (0-12)                                                                               |
+          | HH12                     | Hour of day (0-12)                                                                               |
+          | HH24                     | Hour of day (0-23)                                                                               |
+          | MI                       | Minute (0-59)                                                                                    |
+          | SS                       | Second (0-59)                                                                                    |
+          | MS                       | Millisecond (000-999)                                                                            |
+          | US                       | Microsecond (000000-999999)                                                                      |
+          | SSSS                     | Seconds past midnight (0-86399)                                                                  |
+          | AM, am, PM or pm         | Meridiem indicator (without periods)                                                             |
+          | A.M., a.m., P.M. or p.m. | Meridiem indicator (with periods)                                                                |
+
+  - Return Value
+
+    - TO_CHAR() function returns a string in TEXT data type that represents the first argument formatted according to the specified format.
+
+  - Examples
+
+        - **Convert an integer to a string**
+
+          ```
+          SELECT
+            TO_CHAR(10070,9,9999);
+          ```
+
+          | to_char |
+          | :------ |
+          | 1,0070  |
+
+        - **Convert date into DD-MM-YYYY format**
+
+          ```
+          SELECT
+            release_date,
+            TO_CHAR(release_date,'DD-MM-YYYY'),
+            TO_CHAR(release_date,'Dy ,MM,YYYY')
+          FROM movies
+          ```
+
+          |to_char|to_char|to_char|
+          |:------|:------|:------|
+          |1972-02-02 | 02-02-1972 | Wed ,02,1972|
+          |1979-08-15 | 15-08-1979 | Wed ,08,1979|
+
+        - **Convert timestamp literal to a string**
+
+          ```
+          SELECT
+            TO_CHAR(
+            TIMESTAMP '2020-01-01 10:30:45',
+            'HH24:MI:SS'
+            );
+          ```
+          |to_char|
+          |:------|
+          |10:30:45|
+
+        - **Adding Currency symbol to movies revenues (prices)**
+
+          ```
+          SELECT
+            movie_id,
+            revenues_domestic,
+            TO_CHAR(revenues_domestic,'$999D99') -- $ currency ndigits 2 decimal places
+          FROM movies_revenues;
+          ```
+
+          |movie_id|revenues_domestic|to_char|
+          |:-------|:----------------|:------|
+          |45      |22.20            |$    22.20|
+          |13      |199.40           |$   199.40|
+
+- **TO_NUMBER()**
+
+  - TO_NUMBER() function converts a character string to a numeric value.
+
+  - Syntax TO_NUMBER(string, format)
+
+    - _WHERE_
+
+      - _string_ - String to be converted to a number
+
+      - _format_ - see valid numeric formats above
+
+  - Return Value
+
+    - TO_NUMBER() function returns a value whose data type is numeric.
+
+  - Example
+
+    - **Convert a string to a number**
+
+      ```
+      SELECT
+        TO_NUMBER('1420.89','9999.9');
+      ```
+
+      | to_number |
+      | :-------- |
+      | 1420.8    |
+
+      ```
+      SELECT
+        TO_NUMBER('12,345.6-','99G999D9S');
+      ```
+
+      | to_number |
+      | :-------- |
+      | -12345.6  |
+
+    - **Convert a money amount to a number**
+
+      ```
+      SELECT
+        TO_NUMBER('$1,234,567.89','L9G999g999.99');
+      ```
+
+      | to_number  |
+      | :--------- |
+      | 1234567.89 |
+
+    - Format control
+
+      ```
+      SELECT
+        TO_NUMBER('1,234,567.89','9G999g999');
+      ```
+
+      | to_number |
+      | :-------- |
+      | 1234567   |
+
+- **TO_DATE()**
+
+  - TO_DATE() function converts a string literal to a date value.
+
+  - Syntax TO_DATE(text,format)
+
+    - _WHERE_
+
+      - _text_ - The first argument is the string that you want to convert to a date.
+
+      - _format_ - see valid date formats above.
+
+  - Return Value
+
+    - TO_DATE() function returns a date value.
+
+  - Examples
+
+    - **String to date**
+
+      ```
+      SELECT
+        TO_DATE('2023/03/11','YYYY/MM/DD');
+      ```
+
+      | to_date    |
+      | :--------- |
+      | 2023-03-11 |
+
+      ```
+      SELECT
+        TO_DATE('11032023','MMDDYYYY');
+      ```
+
+      | to_date    |
+      | :--------- |
+      | 2023-03-11 |
+
+      ```
+      SELECT
+        TO_DATE('March 11, 2023','Month DD, YYYY');
+      ```
+
+      | to_date    |
+      | :--------- |
+      | 2023-03-11 |
+
+  - PostgreSQL TO_DATE gotchas
+
+    - If you pass an invalid date string, the TO_DATE() function will try to convert it to a valid date and issue an error if it cannot. For example:
+
+      ```
+      SELECT TO_DATE('2017/02/30', 'YYYY/MM/DD');
+
+      ERROR:  date/time field value out of range: "2017/02/30"
+      LINE 1: SELECT '2017/02/30'::date;
+      ```
+
+      ```
+      SELECT TO_DATE('2023/02/28', 'YYYY/MM/DD');
+
+      | to_date    |
+      | :--------- |
+      | 2023-02-28 |
+      ```
+
+- **TO_TIMESTAMP()**
+
+  - TO_TIMESTAMP() function converts a string to a timestamp according to the specified format.
+
+  - Syntax - TO_TIMESTAMP(timestamp, format)
+
+    - _WHERE_
+
+      - _timestamp_ is a string that represents a timestamp value in the format specified by format.
+
+      - _format_ rep valid date and time values formats (_see valid datetime formats_)
+
+  - Return Value
+
+    - TO_TIMESTAMP() function returns a timestamp with time zone.
+
+  - Example
+
+    - Convert a string to a timestamp
+
+      ```
+      SELECT
+        TO_TIMESTAMP('2023-03-11 11:39:20','YYYY-MM-DD HH:MI:SS');
+      ```
+
+      | to_timestamp           |
+      | :--------------------- |
+      | 2017-03-31 09:30:20+03 |
+
+  - TO_TIMESTAMP() function skips spaces in the input string unless the fixed format global option (FX prefix) is used.
+
+    ```
+    SELECT
+     TO_TIMESTAMP('2017     Aug','YYYY MON');
+    ```
+
+    | to_timestamp           |
+    | :--------------------- |
+    | 2023-03-01 00:00:00+03 |
