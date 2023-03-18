@@ -2803,7 +2803,7 @@ CREATE TABLE movies_actors(
       FROM ratings;
       ```
 
-## Section 8: Conversion Functions
+## Section 9: Conversion Functions
 
 - **TO_CHAR()**
 
@@ -3123,3 +3123,556 @@ CREATE TABLE movies_actors(
     | to_timestamp           |
     | :--------------------- |
     | 2023-03-01 00:00:00+03 |
+
+## Section 10: User-defined types
+
+- PostgreSQL allows you to create user-defined data types through the following statements:
+
+  - **CREATE DOMAIN** creates a user-defined data type with constraints such as NOT NULL, CHECK, etc.
+
+  - **CREATE TYPE** creates a composite type used in stored procedures as the data types of returned values.
+
+        # PostgreSQL CREATE DOMAIN statement
+
+        - In PostgreSQL, a domain is a data type with optional constraints e.g. NOT NULL and CHECK
+
+        - A domain has a unique name within the schema scope - cannot be re-used outside of scope where they are defined.
+
+        - Domains are useful for centralizing the management of fields with common constraints.
+
+        - For example, some tables may have the same column that do not accept NULL and spaces.
+
+        - SYNTAX
+
+          ```
+          CREATE DOMAIN name AS datatype CONSTRAINT;
+          ```
+
+        - Examples
+
+          - **Create user-defined datatype that checks range and not null**
+
+            ```
+            CREATE DOMAIN addr AS VARCHAR(20) NOT NULL;
+            ```
+
+            - **Usage Create 'locations' table and insert sample data**
+
+              ```
+              CREATE TABLE locations(
+                --address VARCHAR(20) NOT NULL
+                address addr
+              );
+
+              INSERT INTO locations(address)VALUES('Nairobi KE');
+              ```
+
+            - **Test it out**
+
+              ```
+              INSERT INTO locations(address)VALUES('Nairobi KE Nairobi KE Nairobi KE Nairobi KE');
+
+              ERROR:  value too long for type character varying(20)
+              SQL state: 22001
+              ```
+
+          - **Create user-defined datatype (positive_numeric) that checks for positive number > 0**
+
+            ```
+            CREATE DOMAIN positive_numeric AS INT NOT NULL CHECK(VALUE > 0);
+            ```
+
+            - **Usage Create 'sample' table and insert sample data**
+
+              ```
+              CREATE TABLE sample(
+                sample_id SERIAL PRIMARY KEY,
+                value_number positive_numeric
+              );
+
+              INSERT INTO sample(value_number)VALUES(10);
+              ```
+
+            - **Test it out**
+
+              ```
+              INSERT INTO sample(value_number)VALUES(-10);
+
+              ERROR:  value for domain positive_numeric violates check constraint "positive_numeric_check"
+              ```
+
+          - **Create user-defined datatype (postal_code) that validates postal_code**
+
+            ```
+            CREATE DOMAIN
+             us_postal_code TEXT
+             CHECK (
+              VALUE ~'^\d{5}$'
+              OR
+              VALUE ~'^\D{5} - \d{4}$'
+              );
+            ```
+
+            - **Usage Create 'addresses' table and insert sample data**
+
+              ```
+              CREATE TABLE addresses(
+                address_id SERIAL PRIMARY KEY,
+                postal_code us_postal_code
+              );
+
+              INSERT INTO addresses(postal_code)VALUES('10000');
+              ```
+
+            - **Test it out**
+
+              ```
+              INSERT INTO addresses(postal_code)VALUES('10000-1000-10000');
+              ERROR:  value for domain us_postal_code violates check constraint "us_postal_code_check"
+              ```
+
+          - **Create user-defined datatype (proper_email) that validates user/employee/ email**
+
+            ```
+            CREATE DOMAIN
+              proper_email VARCHAR(255)
+              CHECK(VALUE ~ '^[a-zA-Z0-9.!#$%&''*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$');
+            ```
+
+            - **Usage Create 'client_names' table and insert sample data**
+
+              ```
+              CREATE TABLE client_names(
+                id SERIAL PRIMARY KEY,
+                email proper_email
+              );
+
+              INSERT INTO client_names(email)VALUES('testt@test.com');
+              ```
+
+            - **Test it out**
+
+              ```
+              INSERT INTO client_names(email)VALUES('somerandomemailhere');
+              ERROR:  value for domain proper_email violates check constraint "proper_email_check"
+              ```
+
+          - **Create user-defined Enum datatype (valid_colors) that checks for defined set of color values**
+
+            ```
+            CREATE DOMAIN
+              valid_color VARCHAR(10)
+              CHECK(VALUE IN ('Red','Green','Blue'));
+            ```
+
+            ```
+            CREATE DOMAIN
+              user_status VARCHAR(10)
+              CHECK(VALUE IN ('ACTIVE','INACTIVE'));
+            ```
+
+            - **Usage Create 'colors' table and insert sample data**
+
+              ```
+              CREATE TABLE colors(
+                id SERIAL PRIMARY KEY,
+                color valid_color
+              );
+
+              INSERT INTO colors(color)VALUES('Red');
+              ```
+
+              ```
+              CREATE TABLE users(
+                id SERIAL PRIMARY KEY,
+                status user_status
+              );
+
+              INSERT INTO users(status)VALUES('Active');
+              ```
+
+            - **Test it out**
+
+              ```
+              INSERT INTO colors(color)VALUES('Yellow');
+              ERROR:  value for domain valid_color violates check constraint "valid_color_check"
+
+              INSERT INTO users(status)VALUES('TEMP');
+              ERROR:  value for domain user_status violates check constraint "user_status_check"
+              ```
+
+    - List all Domain data types
+
+      - To get all domains in a specific schema, you use the following query
+
+        ```
+        SELECT typname
+        FROM pg_catalog.pg_type
+        JOIN pg_catalog.pg_namespace
+        ON pg_namespace.oid = pg_type.typnamespace
+        WHERE typtype = 'd' and nspname = '<schema_name>';
+        ```
+
+      - To get all domains in the public schema of the current database:
+
+        ```
+        SELECT typname
+        FROM pg_catalog.pg_type
+        JOIN pg_catalog.pg_namespace
+        ON pg_namespace.oid = pg_type.typnamespace
+        WHERE
+        typtype = 'd' and nspname = 'MYDATA';
+        ```
+
+    - Drop a DOMAIN datatype
+
+      - Be careful !! - WONT WORK!! - If there are any objects/tables that depend on the DOMAIN
+
+      - Syntax
+
+        ```
+        DROP DOMAIN positive_numeric;
+        ```
+
+      - Add CASCADE if you want to drop dependent objects too (col using the DOMAIN will be dropped)
+
+        ```
+        DROP DOMAIN positive_numeric CASCADE;
+        ```
+
+      - **Change the col to another type first - then DROP DOMAIN (IF YOU DONT WANT THE COL TO BE DROPPED)**
+
+      # PostgreSQL Composite data type
+
+      - A composite data type is a user defined data type consisting of several fields with their corresponding data types
+
+      - Characteristics of a composite Data type:
+
+        - List of field names with corresponding data types
+        - Can be used in a table as a 'column'
+        - Can be used in Functions or Procedures
+        - Can return multiple values, it's a composite data type
+
+      - Syntax
+
+        ```
+        CREATE TYPE typename AS (fields column_properties);
+        ```
+
+      - Examples :
+
+        - **Create user-defined composite datatype (address) with (city,country) fields**
+
+          ```
+          CREATE TYPE address AS(
+            city VARCHAR(50),
+            country VARCHAR(20)
+          );
+          ```
+
+          - **Usage Create 'companies' table and insert sample data**
+
+            ```
+            CREATE TABLE companies (
+              comp_id SERIAL PRIMARY KEY,
+              address address
+            );
+
+            INSERT INTO companies(address)
+            VALUES(ROW('LONDON','UK'));
+
+            INSERT INTO companies(address)
+            VALUES(ROW('NEW YORK','US'));
+            ```
+
+          - Querying data
+
+            - Suppose we want to filter data based on country only from 'companies'
+
+            - Syntax
+
+              ```
+              SELECT (composite_type).field_name FROM table_name;
+
+
+              SELECT (address).country FROM companies;
+              SELECT (address).city FROM companies;
+              ```
+
+            - Suppose you are joining multiple tables
+
+            - Syntax
+
+              ```
+              SELECT (tablename.composite_column).field_name FROM table_name;
+              ```
+
+        - **Create user-defined composite datatype (inventory_item) with (product_name,supplier_id,price) fields**
+
+          ```
+          CREATE TYPE inventory_item AS (
+            product_name VARCHAR(20),
+            supplier_id INT,
+            price NUMERIC
+          );
+          ```
+
+          - **Usage Create 'inventory' table and insert sample data**
+
+            ```
+            CREATE TABLE inventory (
+              inventory_id SERIAL PRIMARY KEY,
+              item inventory_item
+            );
+
+            INSERT INTO inventory(item)
+            VALUES(ROW('PEN',10,4.99));
+
+            INSERT INTO inventory(item)
+            VALUES(ROW('PAPER',20,10.99));
+            ```
+
+          - Querying data
+
+            - Suppose we want to get all products whose prices are less than 5 bucks
+
+              ```
+              SELECT (item).product_name
+              FROM inventory
+              WHERE (item).price < 5.99;
+              ```
+
+        - **Create user-defined composite ENUM datatype (currency)**
+
+          ```
+          CREATE TYPE currency AS ENUM('USD','EURO','GBP');
+          ```
+
+          - **Access data directly from ENUM datatype**
+
+            ```
+            SELECT 'USD'::currency;
+            ```
+
+          - **Add another Value to ENUM datatype(currency)**
+
+            ```
+            ALTER TYPE currency ADD VALUE 'CHF' AFTER 'EURO';
+            ```
+
+          - **Usage Create 'stocks' table and insert sample data**
+
+            ```
+            CREATE TABLE stocks (
+            stock_id SERIAL PRIMARY KEY,
+            stock_currency currency
+            );
+
+            INSERT INTO stocks(stock_currency)
+            VALUES('USD');
+
+            INSERT INTO stocks(stock_currency)
+            VALUES('KES'); -- ERROR:  invalid input value for enum currency: "KSH"
+            ```
+
+      - **DROP TYPE**
+
+        - **Create user-defined composite ENUM datatype (sample_type) and Drop**
+
+          ```
+          CREATE TYPE sample_type AS ENUM ('ABC','123');
+          ```
+
+        - Drop Type 'sample_type'
+
+          ```
+          DROP TYPE sample_type;
+          ```
+
+      - **ALTER TYPE**
+
+        - **Alter Composite Data type**
+
+          - **Create a Sample composite type**
+
+            ```
+            CREATE TYPE myaddress AS(
+              city VARCHAR(50),
+              country VARCHAR(20)
+            );
+            ```
+
+          - **Add a New Attribute to our composite type**
+
+          ```
+          ALTER TYPE my_address
+          ADD ATTRIBUTE street VARCHAR(150);
+          ```
+
+          - **Rename a composite data type**
+
+            ```
+            ALTER TYPE myaddress RENAME TO my_address;
+            ```
+
+          - **Change the OWNERSHIP of composite types**
+
+            ```
+            ALTER TYPE my_address OWNER TO alex; --ERROR:  role "alex" does not exist
+            ```
+
+          - **Change the Schema of the current type**
+
+            ```
+            ALTER TYPE my_address SET SCHEMA test_schema; --ERROR:  schema "test_schema" does not exist
+            ```
+
+        - **Alter ENUM Data type**
+
+          - **Create a sample ENUM datatype**
+
+            ```
+            CREATE TYPE mycolors AS ENUM('green','red','blue');
+            ```
+
+          - **Add a new value to ENUM - [BEFORE / AFTER] VALUE**
+
+            ```
+            ALTER TYPE mycolors
+            ADD VALUE 'purple' BEFORE 'green'; --BEFORE green;
+
+            ALTER TYPE mycolors
+            ADD VALUE 'magenta' AFTER 'blue'; --AFTER blue;
+            ```
+
+          - **Update an existing value in ENUM**
+
+            ```
+            ALTER TYPE name RENAME VALUE old_value TO newvalue;
+
+            ALTER TYPE mycolors RENAME VALUE 'red' TO 'orange'; --ERROR:  syntax error at or near "VALUE"
+            ```
+
+          - **List all ENUM values**
+
+            ```
+            SELECT enum_range(NULL::mycolors); --{green,red,blue}
+            ```
+
+        - **UPDATE an ENUM data in PRODUCTION server**
+
+          - **Create a sample ENUM datatype ad jobs table**
+
+            ```
+            CREATE TYPE status_enum AS ENUM('queued','waiting','running','done');
+
+            CREATE TABLE jobs(
+              job_id SERIAL PRIMARY KEY,
+              job_status status_enum
+            );
+            ```
+
+          - **INSERT some data**
+
+            ```
+            INSERT INTO jobs(job_status)
+            VALUES
+            ('queued'),
+            ('waiting'),
+            ('running'),
+            ('done');
+            ```
+
+          - **UPDATE 'waiting' to 'running'**
+
+            ```
+            UPDATE jobs
+            SET job_status = 'running'
+            WHERE job_status = 'waiting' ;
+            ```
+
+          - **RENAME status_enum TO status_enum_old**
+
+            ```
+            ALTER TYPE status_enum RENAME TO status_enum_old;
+            ```
+
+          - **CREATE a new one with the 3 values**
+
+            ```
+            CREATE TYPE status_enum AS ENUM('queued','running','done');
+            ```
+
+          - Alter job_status COLUMN to use the status_enum TYPE
+
+            ```
+            ALTER TABLE jobs
+            ALTER COLUMN job_status TYPE status_enum;
+
+            --ERROR:  column "job_status" cannot be cast automatically to type status_enum
+            --HINT:  You might need to specify "USING job_status::status_enum"
+
+            ALTER TABLE jobs
+            ALTER COLUMN job_status TYPE status_enum
+            USING job_status::text::status_enum; --CASTING our enum values to text
+            ```
+
+          - DROP ENUM TYPE
+
+            - Drop 'status_enum_old'
+
+              ```
+              DROP TYPE status_enum_old;
+              ```
+
+        - **An ENUM with a DEFAULT value in a table**
+
+          - CREATE a sample ENUM datatype 'status' and assign to a table
+
+            ```
+            CREATE TYPE status AS ENUM('pending','approved','rejected');
+            ```
+
+          - CREATE a table 'cron_jobs' with a DEFAULT value from the 'status' enum type
+
+            ```
+            CREATE TABLE cron_jobs(
+             cron_job_id SERIAL PRIMARY KEY,
+             status status DEFAULT 'pending'
+            );
+            ```
+
+          - INSERT some sample data (Test)
+
+            ```
+            INSERT INTO cron_jobs(cron_job_id)VALUES(1);
+            INSERT INTO cron_jobs(cron_job_id,status)
+            VALUES
+            (2,'approved'),
+            (3,'rejected');
+            ```
+
+        - **CREATE a TYPE IF NOT EXISTS using PL/PGSQL**
+
+          - Create a composite data type called 'ai'
+
+          - Handy tool that checks if type exists else creates it
+
+            ```
+             DO
+             $$
+              BEGIN
+                IF NOT EXISTS (
+                    SELECT *
+                    FROM pg_catalog.pg_type
+                    JOIN pg_catalog.pg_namespace
+                    ON pg_namespace.oid = pg_type.typnamespace
+                    WHERE
+                    typtype = 'ai' and nspname = 'MYDATA'
+                  )THEN
+                CREATE TYPE ai AS (a text,i integer);
+                END IF;
+              END;
+              $$
+              LANGUAGE plpgsql;
+            ```
