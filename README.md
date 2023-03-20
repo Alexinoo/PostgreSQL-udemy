@@ -3675,4 +3675,623 @@ CREATE TABLE movies_actors(
               END;
               $$
               LANGUAGE plpgsql;
+            ``
             ```
+
+## Section 11: Explore PostgreSQL Constraints
+
+- **Introduction to Constraints**
+
+  - Constraints are like 'gate keepers'
+
+  - Controls the kind of data that goes into the db
+
+  - Constraints are the rules enforced on data COLUMNS on table
+
+  - Used to prevent INVALID data from being entered into the db
+
+  - Ensure ACCURACY and RELIABILITY of the data in the db
+
+  - Constraints can be added on 2 levels :-
+
+    - Table (constraints only applied to the whole table)
+
+    - Column (constraints only applied to one column)
+
+  - Types of Constraints
+
+    - NOT NULL - Field MUST have values
+
+    - UNIQUE - Only unique fields are allowed
+
+    - DEFAULT - Ability to set DEFAULT values
+
+    - PRIMARY KEY - Uniquely identifies each row/record in a table
+
+    - FOREIGN KEY - Constraints data based on columns in other tables
+
+    - CHECK - Checks all values meet specific criteria
+
+- **NOT NULL Constraint**
+
+  - NULL represents UNKNOWN or MISSING information
+
+  - NULL is not the same as an EMPTY STRING or Zero
+
+  - To check if a value is NULL or NOT , use [IS NULL / IS NOT NULL] boolean operator
+
+  - You can create NOT NULL constraint on a table column as follows:
+
+    ```
+    CREATE TABLE table_name(
+      column_name data_type NOT NULL
+    );
+    ```
+
+  - Example
+
+    - CREATE table a sample table 'table_nn'
+
+      ```
+      CREATE TABLE table_nn(
+        id SERIAL PRIMARY KEY,
+        tag TEXT NOT NULL
+      );
+      ```
+
+    - INSERT some Sample Data
+
+      ```
+      INSERT INTO table_nn(tag)VALUES('John');
+      ```
+
+    - TRY TO INSERT NUll values
+
+      ```
+      INSERT INTO table_nn(tag)
+      VALUES(Null); --ERROR:  null value in column "tag" violates not-null constraint
+
+      INSERT INTO table_nn(tag)
+      VALUES(''); --Empty string is treated as data
+
+      INSERT INTO table_nn(tag)
+      VALUES(0); --0 is treated as data
+      ```
+
+    - Adding NOT NULL to an Existing table (let's say you forgot)
+
+      - Create a table without NOT NULL constraint
+
+        ```
+        CREATE TABLE table_nn2(
+          id SERIAL PRIMARY KEY,
+          tag TEXT
+        );
+        ```
+
+      - Set to NOT NULL
+
+        ```
+        ALTER TABLE table_nn2
+        ALTER COLUMN tag SET NOT NULL;
+        ```
+
+- **UNIQUE Constraint**
+
+  - Ensures that the values stored in a column or a group of columns are unique
+
+  - INSERT - Checks if the value already exists before INSERTING new value
+
+  - UPDATE - Checks if the value already exists before UPDATING EXISTING value
+
+  - Syntax
+
+    ```
+    CREATE TABLE table_name(
+      column_name data_type UNIQUE
+    );
+    ```
+
+  - Example
+
+    ```
+    CREATE TABLE table_emails(
+      id SERIAL PRIMARY KEY,
+      email text UNIQUE
+    );
+
+    INSERT INTO table_emails(email)
+    VALUES('mwangialex26@gmail.com'); - WORKS!!
+
+    INSERT INTO table_emails(email)
+    VALUES('mwangialex26@gmail.com'); --ERROR:  duplicate key value violates unique constraint "table_emails_email_key"
+    ```
+
+  - Create UNIQUE key on Multiple Columns
+
+    ```
+    CREATE TABLE table_products(
+      id SERIAL PRIMARY KEY,
+      product_code VARCHAR(10),
+      product_name text
+      --UNIQUE(product_code,product_name) -- on definition
+    );
+    ```
+
+  - Now add UNIQUE constraint on table_products
+
+    ```
+    ALTER TABLE table_products
+    ADD CONSTRAINT constraint_name UNIQUE(col1,col2,...);
+
+    ALTER TABLE table_products
+    ADD CONSTRAINT unique_product_code UNIQUE(product_code,product_name);
+    ```
+
+  - Insert some sample data
+
+    ```
+    INSERT INTO table_products(product_code,product_name)
+    VALUES('A','apple');
+
+    INSERT INTO table_products(product_code,product_name)
+    VALUES('A','apple'); --ERROR:  duplicate key value violates unique constraint "unique_product_code"
+    ```
+
+  - Order of columns matters !!
+
+- **DEFAULT Constraint**
+
+  - Sets a DEFAULT value of a column in a table - IF default value is NOT set, then the default value is NULL
+
+    ```
+      <column> DEFAULT <value>
+    ```
+
+    ```
+    CREATE TABLE employees (
+      employee_id SERIAL PRIMARY KEY,
+      first_name VARCHAR(50),
+      last_name VARCHAR(50),
+      is_active VARCHAR(2) DEFAULT 'Y'
+    );
+    ```
+
+  - INSERT sample data
+
+    ```
+    INSERT INTO employees(first_name,last_name)
+    VALUES('john','doe');
+    ```
+
+  - Set a default value to an existing table
+
+    ```
+    ALTER TABLE employees
+    ALTER COLUMN is_active SET DEFAULT 'N';
+
+    INSERT INTO employees(first_name,last_name)
+    VALUES('jane','doe');
+    ```
+
+  - Drop a default value
+
+    ```
+    ALTER TABLE employees
+    ALTER COLUMN is_active DROP DEFAULT;
+
+    INSERT INTO employees(first_name,last_name)
+    VALUES('susan','doe');
+    ```
+
+- **PRIMARY KEY Constraint**
+
+  - A primary key is a field in a table which uniquely identifies each row/record in a database table
+
+  - Primary keys MUST contain UNIQUE values
+
+  - A table can have only one primary key, which may consist of single or multiple fields
+
+  - When multiple fields are used as a primary key, they are called a composite key
+
+  - They are same as UNIQUE NOT NULL
+
+  - Syntax
+
+    ```
+    CREATE TABLE table_name(
+      column_name data_type PRIMARY KEY,
+      ...
+    );
+    ```
+
+  - Example
+
+    ```
+    CREATE TABLE table_items(
+      item_id INT PRIMARY KEY,
+      item_name VARCHAR(50) NOT NULL
+    );
+
+    INSERT INTO table_items(item_id,item_name)
+    VALUES(1,'Orange');
+    INSERT INTO table_items(item_id,item_name)
+    VALUES(1,'Orange');--ERROR:  duplicate key value violates unique constraint "table_items_pkey"
+    ```
+
+  - Viewing constraint naming convention
+
+    ```
+    tablename_pkey
+    ```
+
+  - ADD PRIMARY KEY to an Existing table
+
+    - Drop Existing first
+
+      ```
+      ALTER TABLE table_name
+      DROP CONSTRAINT constraint_name;
+
+      ALTER TABLE table_items
+      DROP CONSTRAINT table_items_pkey;
+      ```
+
+    - Add Primary Key
+
+      ```
+      ALTER TABLE table_name
+      ADD PRIMARY KEY(col1,col2,..);
+
+      ALTER TABLE table_items
+      ADD PRIMARY KEY(item_id);
+      ```
+
+- **PRIMARY KEY Constraint on Multiple Columns**
+
+  - Also known as Composite PRIMARY KEY
+
+  - Create sample table 'table_grades' for student grades
+
+    ```
+    CREATE TABLE table_grades(
+      course_id VARCHAR(100) NOT NULL,
+      student_id VARCHAR(100) NOT NULL,
+      grade INT NOT NULL
+    );
+
+    INSERT INTO table_grades(course_id,student_id,grade)
+    VALUES
+    ('Math','S1',50),
+    ('CHEMISTRY','S1',70),
+    ('ENGLISH','S2',80),
+    ('PHYSICS','S1',80);
+
+    course_id + student_id = composite key
+    ```
+
+  - DROP table 'table_grades' and re-create again with composite key
+
+    ```
+    DROP TABLE table_grades;
+    ```
+
+  - Re-create again with composite key
+
+    ```
+     CREATE TABLE table_grades(
+      course_id VARCHAR(100) NOT NULL,
+      student_id VARCHAR(100) NOT NULL,
+      grade INT NOT NULL,
+      PRIMARY KEY (course_id,student_id)
+    );
+
+    INSERT INTO table_grades(course_id,student_id,grade)
+    VALUES
+    ('Math','S1',50),
+    ('CHEMISTRY','S1',70),
+    ('ENGLISH','S2',80),
+    ('PHYSICS','S1',80);
+
+    INSERT INTO table_grades(course_id,student_id,grade)
+    VALUES
+    ('Math','S1',50); --ERROR:  duplicate key value violates unique constraint "table_grades_pkey"
+
+    INSERT INTO table_grades(course_id,student_id,grade)
+    VALUES
+    ('Math','S3',50); --Works
+
+    ```
+
+  - Order of columns above matters --PRIMARY KEY (course_id,student_id)
+
+  - Drop PRIMARY KEY
+
+    ```
+    ALTER TABLE table_name
+    DROP CONSTRAINT constraint_name;
+
+    ALTER TABLE table_grades
+    DROP CONSTRAINT table_grades_pkey;
+    ```
+
+  - Add PRIMARY KEY TO an existing table
+
+    ```
+    ALTER TABLE table_name
+    ADD CONSTRAINT constraint_name
+    PRIMARY KEY (col1,col2,...);
+    ```
+
+- **FOREIGN KEY Constraint**
+
+  - **Introduction to Foreign Keys**
+
+    - A foreign key is a column or a group of columns in a table that reference the primary key of another table.
+
+    - The table that contains the foreign key is called the referencing table or child table.
+
+    - And the table referenced by the foreign key is called the referenced table or parent table.
+
+    - Syntax
+
+      ```
+      [CONSTRAINT fk_name]
+      FOREIGN KEY(fk_columns)
+      REFERENCES parent_table(parent_key_columns)
+      [ON DELETE delete_action]
+      [ON UPDATE update_action]
+      ```
+
+      - _WHERE_
+
+        - _Optional_ Specify the name for the foreign key constraint after the CONSTRAINT keyword which is optional. PostgreSQL will assign an auto-generated name if ommitted.
+
+        - Specify one or more foreign key columns in parentheses after the FOREIGN KEY keywords.
+
+        - Specify the parent table and parent key columns referenced by the foreign key columns in the REFERENCES clause.
+
+        - Specify the delete and update actions in the ON DELETE and ON UPDATE clauses.
+
+      - The delete and update actions determine the behaviors when the primary key in the parent table is deleted and updated.
+
+      - Since the primary key is rarely updated, the ON UPDATE action is not often used in practice.
+
+    - Example
+
+      ```
+      CREATE TABLE table_name(
+      column_name datatype PRIMARY KEY,
+      ....
+      ....
+      FOREIGN KEY(columnname) REFERENCES child_table_name(columnname)
+      );
+      ```
+
+  - **Tables Without Foreign key constraints**
+
+    - Create 2 tables independent of each other
+
+      ```
+      CREATE TABLE table_product(
+        product_id INT PRIMARY KEY,
+        product_name VARCHAR(100) NOT NULL,
+        supplier_id INT NOT NULL
+      );
+
+      CREATE TABLE table_supplier(
+        supplier_id INT PRIMARY KEY,
+        supplier_name VARCHAR(100) NOT NULL
+      );
+      ```
+
+    - Insert sample data
+
+      ```
+      INSERT INTO table_supplier(supplier_id,supplier_name)
+      VALUES
+      (1,'SUPPLIER 1'),
+      (2,'SUPPLIER 2');
+
+      INSERT INTO table_product(product_id,product_name,supplier_id)
+      VALUES
+      (1,'PEN',1),
+      (2,'PAPER',2);
+
+      INSERT INTO table_product(product_id,product_name,supplier_id)
+      VALUES
+      (3,'COMPUTER',10); --INSERTS supplier_id-10 even when the id does not exist
+
+      ```
+
+  - **RE_CREATE Tables With Foreign key constraints**
+
+    - Drop and re-create 'table_supplier' and 'table_product'
+
+      ```
+      DROP TABLE table_product;
+      DROP TABLE table_supplier;
+      ```
+
+    - Run the 'CREATE TABLE table_supplier' above ..ORDER Matters !!!
+
+    - Create 'table_product' and define 'supplier_id' as foreign key
+
+      ```
+      CREATE TABLE table_product(
+        product_id INT PRIMARY KEY,
+        product_name VARCHAR(100) NOT NULL,
+        supplier_id INT NOT NULL,
+        FOREIGN KEY(supplier_id) REFERENCES table_supplier(supplier_id)
+      );
+      ```
+
+  - **Foreign key maintains Referential data integrity**
+
+    - Foreign key states that values in the column MUST match with values with some other row from another table
+
+      ```
+      INSERT INTO table_supplier(supplier_id,supplier_name)
+      VALUES
+      (1,'BIC'),
+      (2,'COCACOLA');
+
+      INSERT INTO table_product(product_id,product_name,supplier_id)
+      VALUES
+      (1,'PEN',1),
+      (2,'FANTA ORANGE',2);
+
+      INSERT INTO table_product(product_id,product_name,supplier_id)
+      VALUES
+      (3,'COMPUTER',3); ERROR:  insert or update on table "table_product" violates foreign key constraint "table_product_supplier_id_fkey"
+      ```
+
+    - Let's try to delete 'BIC' from the parent table (supplier table) - ERROR!!
+
+      ```
+      DELETE FROM table_supplier WHERE supplier_id = 1;
+
+      --ERROR:  update or delete on table "table_supplier" violates foreign key constraint "table_product_supplier_id_fkey" on table "table_product"
+      ```
+
+    - Let's try to delete product with the id 1 from the child table (product table) - WORKS!!
+
+    - Let's try again to delete 'BIC' from the parent table (supplier table) - WORKS - no child records!!
+
+    - Same CONCEPT applies to both Update/Delete actions
+
+  - **Drop a constraint**
+
+    - Naming convention of a foreign key constraint ;--tablename_columnname_fkey
+
+    - Syntax
+
+      ```
+      ALTER TABLE table_name
+      DROP CONSTRAINT constraint_name;
+
+      ALTER TABLE table_product
+      DROP CONSTRAINT table_product_supplier_id_fkey;
+      ```
+
+  - **Add OR Update Foreign Key Constraint on existing table**
+
+    - Syntax
+
+      ```
+      ALTER TABLE table_product
+      ADD CONSTRAINT constraint_name FOREIGN KEY(columnname) REFERENCES tablename(columnname);
+
+      ALTER TABLE table_product
+      ADD CONSTRAINT table_product_supplier_id_fkey
+      FOREIGN KEY(supplier_id) REFERENCES table_supplier(supplier_id);
+      ```
+
+- **CHECK Constraint**
+
+  - Naming convention {tablename}\_{column}\_check
+
+  - **Introduction To CHECK Constraint**
+
+    - Allows you to specify if values in a column MUST meet a specific requirement
+
+      e.g. Salary > 0
+
+    - Uses a Boolean expression to evaluate the values before they are are inserted/updated to the column
+
+    - If the values pass the check, PostgreSQL will insert/update these values to the column, Otherwise, PostgreSQL will reject the changes and issue a constraint violation error
+
+  - **Add CHECK Constraint to New Table**
+
+    - Create sample 'staff' table
+
+      ```
+      CREATE TABLE staff(
+        staff_id SERIAL PRIMARY KEY,
+        first_name VARCHAR(50) NOT NULL,
+        last_name VARCHAR(50) NOT NULL,
+        date_of_birth DATE CHECK(date_of_birth > '1900-01-01'),
+        join_date DATE CHECK(join_date > date_of_birth),
+        salary NUMERIC CHECK(salary > 0)
+      );
+      ```
+
+    - Add some sample test-data
+
+      ```
+      INSERT INTO staff(first_name,last_name,date_of_birth,join_date,salary)
+      VALUES
+      ('Jane','Doe','1999-01-01','2023-01-01',100);
+
+      INSERT INTO staff(first_name,last_name,date_of_birth,join_date,salary)
+      VALUES
+      ('James','Doe','2020-01-01','2020-01-01',100); --ERROR: Violates "staff_check" constraint
+
+      INSERT INTO staff(first_name,last_name,date_of_birth,join_date,salary)
+      VALUES
+      ('James','Doe','2010-01-01','2020-01-01',100); --WORKS
+
+      INSERT INTO staff(first_name,last_name,date_of_birth,join_date,salary)
+      VALUES
+      ('James','Doe','2010-01-01','2020-01-01',-100); --ERROR : Violates "staff_salary_check" constraint
+      ```
+
+    - Update existing with wrong values
+
+      ```
+      UPDATE staff
+      SET salary = 0
+      WHERE staff_id = 1; --ERROR : Violates check constraint "staff_salary_check"
+      ```
+
+  - **ADD, RENAME , DROP on EXISTING table**
+
+    - Create price table without CHECK constraint
+
+      ```
+      CREATE TABLE price(
+        price_id SERIAL PRIMARY KEY,
+        product_id INT NOT NULL,
+        price NUMERIC NOT NULL,
+        discount NUMERIC NOT NULL,
+        valid_from DATE NOT NULL
+      );
+      ```
+
+    - Add the following Check Constraint: price > 0 , discount > 0% and price > discount
+
+      ```
+      ALTER TABLE price
+      ADD CONSTRAINT price_check
+        CHECK(
+          price > 0
+            AND
+          discount >= 0
+            AND
+          price > discount
+          );
+      ```
+
+    - Test by Inserting some sample data
+
+      ```
+      INSERT INTO price(product_id,price,discount,valid_from)
+      VALUES(1,100,20,'2020-01-01');
+
+      INSERT INTO price(product_id,price,discount,valid_from)
+      VALUES(2,100,120,'2020-01-01'); --ERROR: Violates check constraint "price_check"
+      ```
+
+    - Rename CHECK constraint
+
+      ```
+      ALTER TABLE price
+      RENAME CONSTRAINT price_check TO price_discount_check;
+      ```
+
+    - Drop CHECK a constraint
+
+      ```
+      ALTER TABLE price
+      DROP CONSTRAINT price_discount_check;
+      ```
