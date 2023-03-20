@@ -4295,3 +4295,300 @@ CREATE TABLE movies_actors(
       ALTER TABLE price
       DROP CONSTRAINT price_discount_check;
       ```
+
+## Section 12: PostgreSQL Sequences
+
+- **What is a Sequence**
+
+  - A sequence is an ordered list of integers.
+
+  - The orders of numbers in the sequence are important.
+
+    - e.g. {1,2,3,4,5} and {5,4,3,2,1} are entirely different sequences.
+
+  - A sequence in PostgreSQL is a user-defined schema-bound object that generates a sequence of integers based on a specified specification.
+
+  - To create a sequence in PostgreSQL, you use the **CREATE SEQUENCE** statement.
+
+- **Create a Sequence**
+
+  - The syntax is as follows:-
+
+    ```
+    CREATE SEQUENCE [ IF NOT EXISTS ] sequence_name
+
+    CREATE SEQUENCE IF NOT EXISTS test_seq;
+    ```
+
+  - To get the next value from the sequence, use the **nextval()** function:
+
+    ```
+    SELECT nextval('test_seq');
+    ```
+
+  - To get the current value from the sequence, use the **currval()** function:
+
+    ```
+    SELECT currval('test_seq');
+    ```
+
+  - To set a sequence default value, use the nextval() function:
+
+    ```
+    SELECT setval('test_seq',100); -- sets default start from to 100;
+
+    SELECT nextval('test_seq'); --101
+    ```
+
+  - Control the sequence start value on definition
+
+    ```
+    CREATE SEQUENCE IF NOT EXISTS sequence_name
+    START WITH VALUE;
+
+
+    CREATE SEQUENCE IF NOT EXISTS test_sequence START WITH 1000;
+    ```
+
+- **Restart , rename a sequence and use pgAdmin to alter a sequence**
+
+  - Restart,rename a sequence
+
+    ```
+    SELECT nextval('test_seq'); --102
+
+    ALTER SEQUENCE test_seq
+    RESTART WITH 100;
+
+    SELECT nextval('test_seq'); --100
+
+    ```
+
+  - Rename a sequence - script -
+
+    ```
+    ALTER SEQUENCE test_seq
+    RENAME TO my_sequence;
+    ```
+
+- **Use Multiple sequence parameters to create a sequence**
+
+  ```
+  CREATE SEQUENCE [ IF NOT EXISTS ] sequence_name
+  [ AS { SMALLINT | INT | BIGINT } ]
+  [ INCREMENT [ BY ] increment ]
+  [ MINVALUE minvalue | NO MINVALUE ]
+  [ MAXVALUE maxvalue | NO MAXVALUE ]
+  [ START [ WITH ] start ]
+  [ CACHE cache ]
+  [ [ NO ] CYCLE ]
+  [ OWNED BY { table_name.column_name | NONE } ]
+  ```
+
+  ```
+  CREATE SEQUENCE IF NOT EXISTS example_sequence
+  INCREMENT 50
+  MINVALUE 400
+  MAXVALUE 6000
+  START WITH 500
+
+  SELECT nextval('example_sequence'); --500
+  SELECT nextval('example_sequence'); --550
+  SELECT nextval('example_sequence'); --600
+  ```
+
+- **Create a sequence with a specific data type { SMALLINT | INT | BIGINT }**
+
+  - Default datatype is BIGINT if not specified
+
+    ```
+    CREATE SEQUENCE IF NOT EXISTS sequence_name AS data_type;
+
+    CREATE SEQUENCE IF NOT EXISTS smallint_sequence AS SMALLINT; --SMALLINT
+    CREATE SEQUENCE IF NOT EXISTS smallint_sequence AS INT; --INT
+    CREATE SEQUENCE IF NOT EXISTS smallint_sequence; --BIGINT (default type)
+    ```
+
+- **Create a descending sequence and CYCLE | NO CYCLE sequence**
+
+  - Create a desc sequence
+
+  - CYCLE
+
+    - [ASC] When it reaches to MAXVALUE , reset to MINVALUE
+    - [DESC]- When it reaches to MINVALUE , reset to MAXVALUE
+
+    ```
+    CREATE SEQUENCE IF NOT EXISTS seq_des
+    INCREMENT -1
+    MINVALUE 1
+    MAXVALUE 3
+    START 3
+    CYCLE
+    ```
+
+    ```
+    SELECT nextval('seq_des'); --3
+    SELECT nextval('seq_des'); --2
+    SELECT nextval('seq_des'); --1
+    SELECT nextval('seq_des'); --3
+    ```
+
+  - NO CYCLE - Throws an error if it reaches min/max
+
+    ```
+    CREATE SEQUENCE IF NOT EXISTS seq_des_nocycle
+    INCREMENT -1
+    MINVALUE 1
+    MAXVALUE 3
+    START 3
+    NO CYCLE
+    ```
+
+    ```
+    SELECT nextval('seq_des_nocycle'); --3
+    SELECT nextval('seq_des_nocycle'); --2
+    SELECT nextval('seq_des_nocycle'); --1
+    SELECT nextval('seq_des_nocycle'); --ERROR:  nextval: reached minimum value of sequence "seq_des_nocycle" (1)
+    ```
+
+- **Delete/Drop a sequence**
+
+  ```
+  CREATE SEQUENCE IF NOT EXISTS drop_seq;
+
+  DROP SEQUENCE drop_seq;
+  ```
+
+- **Attach a sequence to a table column**
+
+  - Default PostgreSQL sequence for SERIAL datatype
+
+    ```
+    nextval('tablename_columnname_seq'::regclass); --table_users_user_id_seq
+    ```
+
+  - Let's create a table 'table_users' for illustration purposes
+
+    ```
+    CREATE TABLE table_users(
+      user_id SERIAL PRIMARY KEY,
+      user_name VARCHAR(50)
+    );
+
+    ALTER SEQUENCE table_users_user_id_seq RESTART WITH 1000;
+
+    INSERT INTO table_users(user_name)VALUES('susy');
+
+    ```
+
+  - Create table_users2 without sequence - THEN add Sequence
+
+    ```
+    CREATE TABLE table_users2(
+      user_id INT PRIMARY KEY,
+      user_name VARCHAR(50)
+    );
+
+    CREATE SEQUENCE table_users2_user_id_seq
+    START WITH 2000
+    OWNED BY table_users2.user_id
+    ```
+
+  - Alter Table column and set sequence
+
+    ```
+    ALTER TABLE table_users2
+    ALTER COLUMN user_id SET DEFAULT nextval('table_users2_user_id_seq');
+    ```
+
+  - Let's insert some data
+
+    ```
+    INSERT INTO table_users2(user_name)VALUES('Peter'); --2000
+    INSERT INTO table_users2(user_name)VALUES('John'); --2001
+    ```
+
+- **List all Sequences**
+
+  ```
+  SELECT relname sequence_name
+  FROM pg_class
+  WHERE
+  relkind = 'S';
+  ```
+
+- **Share one sequence between multiple tables**
+
+  - Create a common sequence between tables
+
+    ```
+    CREATE SEQUENCE IF NOT EXISTS common_fruits_seq START WITH 1000;
+    ```
+
+  - Attach it to tables 'table_apples' and 'table_mangoes'
+
+    ```
+    CREATE TABLE table_apples(
+      fruit_id INT DEFAULT nextval('common_fruits_seq') NOT NULL,
+      fruit_name VARCHAR(50)
+    );
+    CREATE TABLE table_mangoes(
+      fruit_id INT DEFAULT nextval('common_fruits_seq') NOT NULL,
+      fruit_name VARCHAR(50)
+    );
+    ```
+
+  - Insert some sample data
+
+    ```
+    INSERT INTO table_apples(fruit_name) VALUES('Big Apple'); --1000
+    INSERT INTO table_mangoes(fruit_name) VALUES('Big Mango'); --1001
+    ```
+
+- **Create an alphanumeric sequence**
+
+  - By default, sequences consist of numbers
+
+  - Create a table with SERIAL data type for sequence
+
+    ```
+    CREATE TABLE contacts(
+      contact_id SERIAL PRIMARY KEY,
+      contact_name VARCHAR(150)
+    );
+    ```
+
+  - Insert some sample data
+
+    ```
+    INSERT INTO contacts(contact_name)VALUES('Bob');
+    ```
+
+  - DROP 'contacts' table and RE-CREATE TABLE WITH 'contacts_contact_id_seq'
+
+    - Use DEFAULT to add alpha numeric sequence i.e. ID1,ID2,ID3
+
+      ```
+      DROP TABLE contacts;
+
+      CREATE SEQUENCE IF NOT EXISTS contacts_contact_id_seq;
+
+      CREATE TABLE contacts(
+        contact_id TEXT NOT NULL DEFAULT('ID' ||nextval('contacts_contact_id_seq')),
+        contact_name VARCHAR(150)
+      )
+      ```
+
+    - Change Ownership of 'contacts_contact_id_seq' to
+
+      ```
+      ALTER SEQUENCE contacts_contact_id_seq OWNED BY contacts.contact_id;
+      ```
+
+    - Insert Some Data
+
+      ```
+      INSERT INTO contacts(contact_name)VALUES('Peter'); --ID1
+      INSERT INTO contacts(contact_name)VALUES('John'); --ID2
+      ```
