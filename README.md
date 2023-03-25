@@ -4592,3 +4592,503 @@ CREATE TABLE movies_actors(
       INSERT INTO contacts(contact_name)VALUES('Peter'); --ID1
       INSERT INTO contacts(contact_name)VALUES('John'); --ID2
       ```
+
+## Section 13: STRING Functions
+
+- **UPPER(),LOWER() AND INITCAP() PostgreSQL Functions**
+
+  - UPPER() - Converts a string into uppercase
+  - LOWER() - Converts a string into lower case
+  - INITCAP() - Capitalizes the first letter of a string
+
+  - Examples
+
+    ```
+    SELECT UPPER('postgresql'); --POSTGRESQL
+    SELECT LOWER('POSTGRESQL'); --postgresql
+    SELECT INITCAP('postgresql is awesome'); --Postgresql Is Awesome
+
+    SELECT
+      UPPER(first_name) AS first_name,
+      UPPER(last_name) AS last_name
+    FROM directors;
+    ```
+
+  - More Examples
+
+    ```
+    SELECT
+    INITCAP ( CONCAT(first_name,' ',last_name) )
+    FROM directors
+    ORDER BY first_name;
+    ```
+
+- **LEFT() and() RIGHT PostgreSQL Functions**
+
+  - PostgreSQL LEFT() function returns the first n characters in a string.
+
+  - Syntax
+
+    ```
+    LEFT(string,n);
+    ```
+
+    - _WHERE_
+
+      - is a string from which a number of the leftmost characters returned.
+      - is an integer that specifies the number of left-most characters in the string should be returned.
+
+    - If n is negative, the LEFT() function returns the leftmost characters in the string except the last n characters.
+
+    - Return value - returns the first n characters in a string.
+
+  - Examples
+
+    - Basic Examples
+
+      ```
+      SELECT LEFT('ABC',1); --A
+      SELECT LEFT('ABC',2); --AB
+      SELECT LEFT('ABC',-2); --A
+      SELECT LEFT('ABC',10); --ABC
+
+      ```
+
+    - Get initial character for all directors
+
+      ```
+      SELECT
+        LEFT(first_name,1) initial
+      FROM directors
+      ORDER BY 1;
+
+      SELECT
+        LEFT(first_name, 1) initial,
+        COUNT(*)
+      FROM directors
+      GROUP BY initial
+      ORDER BY initial;
+      ```
+
+    - Get first 6 characters from all movies
+
+      ```
+      SELECT
+        movie_name,
+        LEFT(movie_name,6)
+      FROM movies
+      ORDER BY movie_name;
+      ```
+
+  - PostgreSQL LEFT() function returns the last n characters in a string.
+
+  - Syntax
+
+    ```
+    RIGHT(string,n)
+    ```
+
+    - _WHERE_
+
+      - string - is a string from which a number of the rightmost characters returned.
+
+      - is a positive integer which specifies the number of the rightmost characters in the string should be returned.
+
+      - If n is negative, the RIGHT() function returns all characters in the string but first |n| (absolute) characters.
+
+  - Examples
+
+    ```
+    SELECT RIGHT('ABC',1); --C
+    SELECT RIGHT('ABCD',3); --BCD
+    SELECT RIGHT('ABCD',-1); --BCD (omits the first single character)
+    SELECT RIGHT('ABCDE',-2); --CDE (omits the first two characters)
+    ```
+
+  - More Examples
+
+    - Find all directors whose last name ends with 'on'
+
+      ```
+      SELECT
+        last_name,
+        RIGHT(last_name,2)
+      FROM directors
+      WHERE RIGHT(last_name,2) = 'on';
+      ```
+
+- **REVERSE() PostgreSQL Functions**
+
+  - PostgreSQL reverse() function is used to arrange a string in reverse order.
+
+  - Return reversed string.
+
+  - Syntax
+
+    ```
+    REVERSE(string);
+    ```
+
+    - Examples
+
+      ```
+      SELECT REVERSE('ABC'); --CBA
+
+      SELECT REVERSE('Amazing Postgresql') --lqsergtsoP gnizamA
+      SELECT REVERSE('lqsergtsoP gnizamA') --Amazing Postgresql
+      ```
+
+- **SPLIT_PART() PostgreSQL Functions**
+
+  - PostgreSQL SPLIT_PART() function split a string on a specified delimiter and return nth substring
+
+  - Syntax
+
+    ```
+    SPLIT_PART(string,delimiter,position)
+    ```
+
+    - _WHERE_
+
+      - _string_ - is the string to be split.
+      - _delimiter_ - the delimiter is a string used as the delimiter for splitting (separator)
+      - _position_ - is the position of the part to return, starting from 1. The position must be a positive integer.
+
+    - If the position is greater than the number of parts after splitting, the SPLIT_PART() function returns an empty string.
+
+  - Works like implode in Arrays
+
+  - Examples
+
+    - Basic Examples
+
+      ```
+      SELECT SPLIT_PART('1,2,3',',',2); --2
+      SELECT SPLIT_PART('ONE,TWO,THREE',',',2); --TWO
+      SELECT SPLIT_PART('A,B,C', ',', 2); --B
+      SELECT SPLIT_PART('A|B|C|D', '|', 3); --C
+
+      SELECT SPLIT_PART('2017-12-31','-'',2) --12
+      ```
+
+    - Real world examples
+
+      - Get the release year of all the movies
+
+        ```
+        SELECT
+          movie_name,
+          release_date,
+          SPLIT_PART(release_date::text,'-',1)
+        FROM movies;
+        ```
+
+      - release_date is of type date - Need to cast to string using ::text
+
+- **TRIM(),BTRIM(),LTRIM() and RTRIM() PostgreSQL Functions**
+
+  - TRIM() - Remove the longest string that contains specified characters from the LEFT, RIGHT or BOTH of the input string
+
+  - LTRIM() - Remove the longest string that contains specified characters from the LEFT of the input string
+
+  - RTRIM() - Remove the longest string that contains specified characters from the RIGHT of the input string
+
+  - BTRIM() - is the combination of LTRIM() and RTRIM() functions
+
+  - Syntax
+
+    ```
+    TRIM([LEADING | TRAILING | BOTH] [characters] FROM string)
+
+    TRIM (LEADING FROM string)
+    TRIM (TRAILING FROM string)
+    TRIM (BOTH FROM string)
+
+    LTRIM(string [character]);
+    RTRIM(string [character]);
+    BTRIM(string [character]);
+    ```
+
+  - Examples
+
+    - Basic Examples
+
+      ```
+      SELECT
+        TRIM(LEADING FROM 'Amazing PostgreSQL'), --"Amazing PostgreSQL"
+        TRIM(TRAILING FROM 'Amazing PostgreSQL '), --"Amazing PostgreSQL"
+        BTRIM(' Amazing PostgreSQL '); --"Amazing PostgreSQL"
+      ```
+
+    - Remove leading zero (0) from a number
+
+      ```
+      SELECT
+        TRIM( LEADING '0' FROM 000123456::text ); --123456
+      ```
+
+    - More examples
+
+      ```
+      SELECT LTRIM('yummy','y'); --ummy
+      SELECT LTRIM(' Amazing PostgreSQL')--"Amazing PostgreSQL"
+
+      SELECT RTRIM('yummy','y'); --yumm
+      SELECT RTRIM('Amazing PostgreSQL ')--"Amazing PostgreSQL"
+
+      SELECT BTRIM('yummy','y'); --umm
+      SELECT BTRIM(' Amazing PostgreSQL ') --"Amazing PostgreSQL"
+      ```
+
+- **LPAD() and RPAD() PostgreSQL Functions**
+
+  - LPAD() function pads a string on the left to a specified length with a sequence of characters
+
+  - RPAD() function pads a string on the right to a specified length with a sequence of characters
+
+  - Syntax
+
+    ```
+    LPAD(string, length[, fill])
+    RPAD(string , length[,fill])
+    ```
+
+    - _Where_
+
+      - _string_ - is a string that should be padded on the left
+      - _length_ - is an positive integer that specifies the length of the result string after padding.
+      - _fill_ - is a string used for padding.
+
+    - The fill argument is optional , if ommitted , default is space
+
+  - Examples
+
+    - Basic examples
+
+      ```
+      SELECT LPAD('Database','15','#'); --#######Database (total length - 15)
+      SELECT RPAD('Database','10','*'); --Database** (total length - 10)
+      SELECT LPAD('1111','6','A'); --AA1111 (total length - 6)
+      ```
+
+    - Let's draw a quick chart on movies total revenues
+
+      ```
+      SELECT
+        mv.movie_name,
+        mr.revenues_domestic,
+        LPAD('*',CAST(TRUNC( mr.revenues_domestic / 10) AS INT ) ,'*')
+      FROM movies mv
+        INNER JOIN movies_revenues mr ON mr.movie_id = mv.movie_id
+      ORDER BY 3 DESC
+      NULLS LAST
+      ```
+
+- **LENGTH() PostgreSQL Functions**
+
+  - LENGTH() return the number of characters in a string
+
+  - Syntax
+
+    ```
+    LENGTH(string);
+    ```
+
+  - Examples
+
+    ```
+    SELECT LENGTH('Amazing PostgreSQL'); --18
+
+    SELECT LENGTH(100122::text); --6
+
+    SELECT LENGTH('What is the length of this string'); --33
+    ```
+
+  - PostgreSQL provides the char_length and character_length functions that provide the same functionality
+
+    ```
+    SELECT CHAR_LENGTH(100122::text); --6
+
+    SELECT CHAR_LENGTH(''); --0
+    SELECT CHAR_LENGTH(' '); --1
+    SELECT CHAR_LENGTH(NULL); --[null]
+    ```
+
+  - Get the total length of all directors full name
+
+    ```
+    SELECT
+      first_name || ' ' || last_name AS full_name,
+      LENGTH(first_name || ' ' || last_name) AS full_name_length
+    FROM directors
+    ORDER BY 2 DESC;
+    ```
+
+- **POSITION() PostgreSQL Functions**
+
+  - POSITION() returns the location of a substring in a string
+
+  - 1-index based
+
+  - Syntax
+
+    ```
+    POSITION(substring IN string);
+    ```
+
+  - The POSITION() function requires two arguments:
+
+    - substring - the string that you want to locate.
+    - string - the string for which the substring is searched.
+
+  - Return Value
+
+    - returns an integer that represents the location of the substring within the string.
+
+    - returns zero (0) if the substring is not found in the string. It returns null if either substring or string argument is null.
+
+    - returns the location of the first instance of the substring in the string.
+
+    - is case-sensitive
+
+  - Examples
+
+    ```
+    SELECT POSITION('Amazing' IN 'Amazing PostgreSQL'); --1
+    SELECT POSITION('is' IN 'This is a computer'); --2
+    SELECT POSITION('A' IN 'klickAnalytics.'); --6
+    ```
+
+- **STRPOS() PostgreSQL Functions**
+
+  - PostgreSQL STRPOS() function is used to find the position, from where the substring is being matched within the string.
+
+  - 1-index based and is case-sensitive
+
+  - Syntax
+
+    ```
+    STRPOS(string,substring)
+    ```
+
+    - _WHERE_
+
+      - string: Represents the string to be searched.
+      - substring: Represents the string whose position is to be found.
+
+  - Examples
+
+    ```
+    SELECT STRPOS('World Bank','Bank'); --7 (starts from index-7)
+    ```
+
+  - Let's display the first_name, last_name and the position of a specific substring 'on' existing within the column last_name from directors
+
+    ```
+    SELECT
+      first_name,
+      last_name
+    FROM directors
+    WHERE STRPOS(last_name,'on') > 0;
+    ```
+
+- **SUBSTRING() PostgreSQL Functions**
+
+  - PostgreSQL SUBSTRING() function returns a part of string
+
+  - Syntax
+
+    ```
+    SUBSTRING ( string ,start_position , length );
+    ```
+
+    - _WHERE_
+
+      - string: is a string whose data type is char, varchar, text, etc.
+      - start_position: is an integer that specifies where you want to extract the substring.
+      - length: is a positive integer that determines the number of characters that you want to extract from the string beginning at start_position.
+
+        - If the sum of start_position and length is greater than the number of characters in the string, the substring function returns the whole string beginning at start_position.
+
+        - The length parameter is optional. If you omit the length parameter, the substring function returns the whole string started at start_position.
+
+  - The first position in string starts with 1
+
+  - PostgreSQL provides another syntax of the substring function as follows:
+
+    ```
+    SUBSTRING(string [FROM start_position] [FOR length]);
+    ```
+
+  - Examples
+
+    ```
+    SELECT SUBSTRING('What a wonderful world' FROM 1 FOR 8 ); --What a w
+    SELECT SUBSTRING('What a wonderful world' FROM 8 FOR 10 ); --wonderful
+    SELECT SUBSTRING('What a wonderful world' FOR 7 ); --What a
+    ```
+
+  - Get initial from directors table
+
+    ```
+    SELECT
+      first_name,
+      last_name,
+      SUBSTRING(first_name,1,1) AS Initial_character
+    FROM directors
+    ORDER BY last_name;
+    ```
+
+- **REPEAT() PostgreSQL Functions**
+
+  - PostgreSQL SUBSTRING() function repeats a string a specified number of times
+
+  - Syntax
+
+    ```
+    repeat( string, number );
+    ```
+
+    - _WHERE_
+
+      - string : The string to repeat.
+      - number : The number of times to repeat the string.
+
+    - If number is less than 1, the repeat function will return an empty string.
+
+  - Examples
+
+    ```
+    SELECT repeat('A', 2); --AA
+    SELECT repeat('AB', 2); --ABAB
+    SELECT repeat('a', 5); --aaaaa
+    SELECT repeat(' ', 6); --'      '
+    ```
+
+- **REPLACE() PostgreSQL Functions**
+
+  - PostgreSQL REPLACE() is used to search and replace a substring with a new substring in a string.
+
+  - Replaces all occurences of a specified string , not just first instance
+
+  - Syntax
+
+    ```
+    REPLACE(source, old_text, new_text );
+    ```
+
+    - _WHERE_
+
+      - source : is a string where you want to replace.
+      - old_text : is the text that you want to search and replace. If the old_text appears multiple times in the string, all of its occurrences will be replaced.
+      - new_text : is the new text that will replace the old text ( old_text).
+
+  - Examples
+
+    ```
+    SELECT REPLACE('I like cats','cats','dogs'); --I like dogs
+
+    SELECT REPLACE('What a wonderful world','a wonderful','an amazing'); --What an amazing world
+
+    SELECT REPLACE('ABC XYZ','X','1'); --ABC 1YZ
+    ```
