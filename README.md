@@ -5092,3 +5092,383 @@ CREATE TABLE movies_actors(
 
     SELECT REPLACE('ABC XYZ','X','1'); --ABC 1YZ
     ```
+
+  - More Examples
+
+    - suppose you want to update the email column to replace the domain sakilacustomer.org with postgresqltutorial.com
+
+      ```
+      UPDATE customer
+      SET email = REPLACE (
+                email,
+              'sakilacustomer.org',
+              'postgresqltutorial.com'
+              );
+      ```
+
+## Section 14: AGGREGATE Functions
+
+- **Counting Results via COUNT() Function**
+
+  - The COUNT() function allows you to get the number of rows that match a specific condition of a query.
+
+    - COUNT(\*) function returns the number of rows returned by a SELECT statement, including NULL and duplicates.
+
+    - COUNT(column) function returns the number of rows returned by a SELECT clause excluding NULL values in the column
+
+    - COUNT(DISTINCT column) function returns the number of unique non-null values in the column.
+
+  - Syntax
+
+    ```
+    SELECT COUNT(*) FROM tablename;
+    SELECT COUNT(columnname) FROM tablename;
+    ```
+
+  - Examples
+
+    - Count all records
+
+      - Count total number of movies
+
+        ```
+        SELECT COUNT(*) FROM movies; --53
+        ```
+
+    - Count all records of a specific column
+
+      - Count movie_length values
+
+        ```
+        SELECT COUNT(movie_length) FROM movies; --53
+        ```
+
+    - Using COUNT with DISTINCT
+
+      - Count all distinct movie languages
+
+        ```
+        SELECT COUNT(movie_lang) FROM movies; --53
+
+        SELECT COUNT(DISTINCT movie_lang) FROM movies; --8
+        ```
+
+      - Count all distinct movies directors
+
+        ```
+        SELECT COUNT(DISTINCT director_id) FROM movies; --37
+        ```
+
+      - Count With WHERE Clause
+
+        - Count all english records
+
+          ```
+          SELECT COUNT(*) FROM movies WHERE movie_lang = 'English'; --38
+          SELECT COUNT(*) FROM movies WHERE movie_lang = 'Japanese'; --4
+          ```
+
+- **Sum With SUM() Function**
+
+  - The PostgreSQL SUM() returns the sum of values or distinct values.
+
+  - The SUM() function ignores NULL and are not considered during calculation.
+
+  - If you use the DISTINCT option, the SUM() function calculates the sum of distinct values.
+
+  - If you use the SUM function in a SELECT statement, it returns NULL not zero in case the SELECT statement returns no rows.
+
+  - Syntax
+
+    ```
+    SUM(DISTINCT expression);
+    SUM(columnname);
+    ```
+
+  - Examples
+
+    - Get total domestic revenues for all movies
+
+      ```
+      SELECT SUM(revenues_domestic) FROM movies_revenues; --5719.50
+      ```
+
+    - Get total domestic revenues for all movies where domestic revenue is greater than 200
+
+      ```
+      SELECT SUM(revenues_domestic) FROM movies_revenues
+      WHERE revenues_domestic > 200; --3425.60
+      ```
+
+    - Get total movie length for all english movies
+
+      ```
+      SELECT SUM(movie_length) FROM movies
+      WHERE movie_lang ='English'; --4824
+      ```
+
+    - Get sum all movie names (type : character varying)
+
+      ```
+      SELECT SUM(movie_name) FROM movies; --ERROR:  function sum(character varying) does not exist
+      ```
+
+    - Using SUM with DISTINCT
+
+      ```
+      SELECT SUM(revenues_domestic) FROM movies_revenues; --5719.50
+      SELECT SUM(DISTINCT revenues_domestic) FROM movies_revenues; --5708.40
+      ```
+
+- **MIN() And MAX() Functions**
+
+  - PostgreSQL MAX() function returns the maximum value while MIN() returns the minimum value from a set of values .
+
+  - Use Cases.
+
+    - Can be used to find the employees who have the highest salary
+    - Can be used to find the most expensive products
+
+  - Syntax
+
+    ```
+    MAX(columnname);
+    MIN(columnname);
+    ```
+
+  - You can use the MAX function not only in the SELECT clause but also in the WHERE and HAVING clauses.
+
+  - Examples
+
+    - Get the longest movie from 'movies' table
+
+      ```
+      SELECT MAX(movie_length) FROM movies; --168
+      ```
+
+    - Get the shortest movie from 'movies' table
+
+      ```
+      SELECT MIN(movie_length) FROM movies; --87
+      ```
+
+    - Get the longest movie [English language] only
+
+      ```
+      SELECT MAX(movie_length) FROM movies
+      WHERE movie_lang = 'English'; --168
+      ```
+
+    - What is the latest movie release in English Language
+
+      ```
+      SELECT MAX(release_date) FROM movies
+      WHERE movie_lang = 'English'; --2017-11-10
+      ```
+
+    - What is the first movie release in Chinese Language
+
+      ```
+      SELECT MIN(release_date) FROM movies
+      WHERE movie_lang = 'Chinese'; --1972-06-01
+      ```
+
+    - Can we use MIN/MAX on text data types (character varying)
+
+      ```
+      SELECT MAX(movie_name) FROM movies; --Way of the Dragon
+      SELECT MIN(movie_name) FROM movies; --A Clockwork Orange
+      ```
+
+- **GREATEST() And LEAST() Functions**
+
+  - In PostgreSQL, the GREATEST() returns the largest value while the LEAST() returns the smallest values from a set of specified values.
+
+  - Examples
+
+    ```
+    SELECT GREATEST(25, 6, 7, 10, 20, 54);  --  returns 54
+    SELECT LEAST(25, 6, 7, 10, 20, 54);  --  returns 6
+    ```
+
+  - They work on the character data types also.
+
+    ```
+    SELECT GREATEST('D','A', 'B', 'C','d','e','E'); -- returns 'E'
+    SELECT LEAST('D','A', 'B', 'C','d','e','E','a'); -- returns 'a'
+    ```
+
+  - The expressions must all be convertible to a common data type.
+
+    ```
+    SELECT LEAST( 5, 'Two', 9 ); --ERROR:  invalid input syntax for type integer: "Two"
+    ```
+
+  - More Examples
+
+    - Get the greatest and least revenues per each movie
+
+      ```
+      SELECT
+        movie_id,
+        revenues_domestic,
+        revenues_international,
+        GREATEST(revenues_domestic,revenues_international) AS Greatest,
+        LEAST(revenues_domestic,revenues_international) AS Least
+      FROM movies_revenues;
+      ```
+
+- **GREATEST() vs MAX() Function**
+
+  - PostgreSQL MAX() and GREATEST() functions perform a similar operation which is returning the maximum value from a range of values.
+
+  - However, there’s a difference between these two functions if we look at their syntax.
+
+  - Syntax
+
+    ```
+    MAX([DISTINCT] expr) [over_clause]
+    GREATEST(value1,value2,...)
+    ```
+
+  - The key difference between these two functions is in the accepted argument/s.
+
+    - MAX() accepts one argument
+
+    - GREATEST() accepts multiple arguments
+
+  - MAX() is typically used to return the maximum value in a column in a database.
+
+  - GREATEST() returns the maximum-valued argument from the list of arguments passed to it.
+
+  - If you try to pass a single argument to the GREATEST() function you’ll get an error.
+
+- **Average With AVG() Function**
+
+  - The AVG() function is one of the most commonly used aggregate functions in PostgreSQL that allows you to calculate the average value of a set.
+
+  - Syntax
+
+    ```
+    AVG(columnname)
+    ```
+
+  - You can use the AVG() function in the SELECT and HAVING clauses.
+
+  - Returns a 'numeric' type value as a result
+
+  - Example
+
+    - Get average movie length for all movies
+
+      ```
+      SELECT AVG(movie_length) FROM movies; --returns 126.1320754716981132
+      ```
+
+    - Get average movie length for [English language]
+
+      ```
+      SELECT AVG(movie_length) FROM movies
+      WHERE movie_lang = 'English'; --returns 126.9473684210526316
+      ```
+
+    - AVG() function with DISTINCT operator
+
+      ```
+      AVG(DISTINCT column);
+      ```
+
+      ```
+      SELECT AVG(DISTINCT movie_length) FROM movies
+      WHERE movie_lang = 'English'; --returns 127.7407407407407407
+      ```
+
+    - AVG() function with SUM() function
+
+      - Get average and sum of English Languages movies
+
+      ```
+      SELECT
+        AVG(movie_length)::numeric(10,2),
+        SUM(movie_length)::numeric(10,2)
+      FROM
+        movies
+      WHERE
+        movie_lang = 'English'; --returns 126.95 4824.00
+      ```
+
+    - How AVG() handles NULL values
+
+      - Let's create a sample table demo_avg and add sample data with NULL values
+
+        ```
+        CREATE TABLE demo_avg(
+          num INT
+        );
+
+        INSERT INTO demo_avg
+        VALUES(1),(2),(3),(NULL);
+        ```
+
+      - Calculate AVG on num column (ignores null values)
+
+        ```
+        SELECT AVG(num)::numeric(10,2) FROM demo_avg; --2.00
+        ```
+
+- **Combining Columns Using Mathematical Operators**
+
+  - Basic Examples (BODMAS)
+
+    ```
+    SELECT 2+10 AS Addition; --12
+    SELECT 10-2 AS Subtraction; --8
+    SELECT 10/2 AS Divide; --5
+    SELECT 11/2 AS Divide; --5
+    SELECT 11/2::numeric(10,2) AS Divide; --5.5
+    SELECT 10*2 AS Product; --20
+    SELECT 10%2 AS Modulus; --0
+    SELECT 10%3 AS Modulus; --1
+    ```
+
+  - Get total revenues from 'movies_revenues' table
+
+    ```
+    SELECT
+      movie_id,
+      revenues_domestic,
+      revenues_international,
+      (revenues_domestic + revenues_international) AS total_revenue
+     FROM
+      movies_revenues;
+    ```
+
+  - Order above by highest revenue movies
+
+    ```
+    SELECT
+      movie_id,
+      revenues_domestic,
+      revenues_international,
+      (revenues_domestic + revenues_international) AS total_revenue
+     FROM
+      movies_revenues
+     ORDER BY 4 DESC
+     NULLS LAST;
+    ```
+
+  - Elliminate NULL values
+
+    ```
+    SELECT
+      movie_id,
+      revenues_domestic,
+      revenues_international,
+      (revenues_domestic + revenues_international) AS total_revenue
+     FROM
+      movies_revenues
+     WHERE
+      (revenues_domestic + revenues_international) IS NOT NULL
+     ORDER BY 4 DESC
+     NULLS LAST;
+    ```
