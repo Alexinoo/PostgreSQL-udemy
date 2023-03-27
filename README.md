@@ -5472,3 +5472,352 @@ CREATE TABLE movies_actors(
      ORDER BY 4 DESC
      NULLS LAST;
     ```
+
+## Section 15: Using DATE/TIME Functions
+
+## Section 16: GROUPING Data
+
+- **Using GROUP BY Clause**
+
+  - The GROUP BY clause divides the rows returned from the SELECT statement into groups.
+
+  - For each group, you can apply an aggregate function like SUM, AVG,MIN,MAX etc.
+
+  - Syntax
+
+    ```
+    SELECT
+      column_1,
+      column_2,
+      ...,
+      aggregate_function(column_3)
+    FROM table_name
+    GROUP BY
+      column_1,
+      column_2,
+    ...;
+    ```
+
+    - Where
+
+      - First, select the columns that you want to group e.g., column1 and column2, and column that you want to apply an aggregate function (column3).
+
+      - Second, list the columns that you want to group in the GROUP BY clause.
+
+  - Example
+
+    - Get total count of all movies group by movie language
+
+      ```
+      SELECT
+        movie_lang,
+        COUNT(movie_lang)
+      FROM movies
+      GROUP BY movie_lang;
+      ```
+
+    - Get Average movie length group by movie language
+
+      ```
+      SELECT
+        movie_lang,
+        AVG(movie_length)::numeric(10,2)
+      FROM movies
+      GROUP BY movie_lang
+      ORDER BY movie_lang;
+      ```
+
+    - Get the sum total movie length per age certificate
+
+      ```
+      SELECT
+        age_certificate,
+        SUM(movie_length)
+      FROM movies
+      GROUP BY age_certificate
+      ORDER BY age_certificate;
+      ```
+
+    - List Minimum and Maximum movie length group by movie language
+
+      ```
+      SELECT
+        movie_lang,
+        MIN(movie_length),
+        MAX(movie_length)
+      FROM movies
+      GROUP BY movie_lang
+      ORDER BY movie_lang;
+      ```
+
+- **Using GROUP BY Clause with multiple columns , ORDER BY**
+
+  - Using more than 1 column in SELECT
+
+  - Examples
+
+    - Get average movie length group by movie language and age certificate
+
+      ```
+      SELECT
+        movie_lang,
+        age_certificate,
+        AVG(movie_length)
+      FROM movies
+      GROUP BY movie_lang,age_certificate;
+      ```
+
+    - Get average movie length group by movie language and age certificate where movie length is greater than 100
+
+      ```
+      SELECT
+        movie_lang,
+        age_certificate,
+        AVG(movie_length)
+      FROM movies
+      WHERE movie_length > 100
+      GROUP BY movie_lang,age_certificate;
+      ```
+
+    - Get average movie length group by age certificate where age certificate is equal to 10
+
+      ```
+      SELECT
+        age_certificate,
+        AVG(movie_length)
+      FROM movies
+      WHERE age_certificate = 'PG'
+      GROUP BY age_certificate;
+      ```
+
+    - How many directors are there per each nationality
+
+      ```
+      SELECT
+        nationality,
+        COUNT(*) AS "Total Count"
+      FROM directors
+      GROUP BY nationality;
+      ```
+
+    - Get total sum movie length for each age certificate and movie language combination
+
+      ```
+      SELECT
+        movie_lang,
+        age_certificate,
+        SUM(movie_length)
+      FROM movies
+        GROUP BY movie_lang,age_certificate
+        ORDER BY movie_lang;;
+      ```
+
+- **Order of Execution in GROUP By Clause**
+
+  - PostgreSQL evaluates the GROUP BY clause after the FROM and WHERE
+
+  - PostgreSQL evaluates the GROUP BY clause before the HAVING,SELECT,DISTINCT,ORDER BY & LIMIT clauses
+
+    ```
+    FROM
+
+    WHERE --conditions
+
+    GROUP BY --group sets
+
+    HAVING --filter again
+
+    SELECT --columns
+
+    DISTINCT --unique columns
+
+    ORDER BY
+
+    LIMIT --filter records based on a certain number
+    ```
+
+- **Using HAVING Clause**
+
+  - The HAVING clause specifies a search condition for a group or an aggregate.
+
+  - The HAVING clause is often used with the GROUP BY clause to filter groups or aggregates based on a specified condition.
+
+  - Syntax
+
+    ```
+    SELECT
+      column1,
+      AGGREGATE_FUNCTION (column2)
+    FROM table_name
+    GROUP BY column1
+    HAVING
+      condition;
+    ```
+
+  - You cannot use column aliases in the HAVING clause as HAVING is evaluated before the SELECT clause
+
+  - HAVING clause calculates on aggregate function and not actual select columns
+
+    ```
+    HAVING AGGREGATE_FUNCTION(column) = value
+    HAVING AGGREGATE_FUNCTION(column) >= value
+    ```
+
+  - Examples
+
+    - List movie languages where sum total length of the movies is greater than 200
+
+      ```
+      SELECT
+        movie_lang,
+        SUM(movie_length)
+      FROM movies
+      GROUP BY movie_lang
+      HAVING SUM(movie_length) > 200
+      ORDER BY SUM(movie_length) DESC;
+      ```
+
+    - List directors where their sum total movie length is greater than 200
+
+      ```
+      SELECT
+        director_id,
+        SUM(movie_length)
+      FROM movies
+      GROUP BY director_id
+      HAVING SUM(movie_length) > 200
+      ORDER BY SUM(movie_length) DESC;
+      ```
+
+    - Can we use column aliases with HAVING clause ?
+
+      - NO! :- HAVING clause is evaluated before the SELECT
+
+        ```
+        SELECT
+          director_id,
+          SUM(movie_length) AS Total_length
+        FROM movies
+          GROUP BY director_id
+          HAVING Total_length > 200
+          ORDER BY 2 DESC; --ERROR:  column "total_length" does not exist
+        ```
+
+- **Order of execution in HAVING clause**
+
+  - PostgreSQL evaluates the HAVING clause after the FROM , WHERE , GROUP BY clauses
+
+  - PostgreSQL evaluates the HAVING clause before the SELECT,DISTINCT,ORDER BY & LIMIT clauses
+
+  - Order
+
+    ```
+    FROM tablename
+
+    WHERE --conditions
+
+    GROUP BY --group sets
+
+    HAVING --filter again
+
+    SELECT --columns
+
+    DISTINCT --unique columns if you use DISTINCT
+
+    ORDER BY
+
+    LIMIT --filter records based on a certain number
+    ```
+
+- **HAVING vs WHERE clause**
+
+  - HAVING works on a result group
+
+  - WHERE works on SELECT columns and not on a result group
+
+  - Example
+
+    - Get the movie languages where their sum total length > 200 [Using HAVING]
+
+      ```
+      SELECT
+        movie_lang,
+        SUM(movie_length)
+      FROM movies
+        GROUP BY movie_lang
+        HAVING SUM(movie_length) > 200
+        ORDER BY 2 DESC;
+      ```
+
+    - Get the movie languages where their sum total length > 200 [Using WHERE]
+
+      ```
+      SELECT
+        movie_lang,
+        SUM(movie_length)
+      FROM movies
+        WHERE SUM(movie_length) > 200
+        GROUP BY movie_lang
+        ORDER BY 2 DESC; --ERROR:  aggregate functions are not allowed in WHERE
+      ```
+
+- **Handling NULL Values with GROUP BY**
+
+  - Let's create a sample 'employee_test' table with sample data
+
+    ```
+    CREATE TABLE employee_test (
+      employee_id SERIAL PRIMARY KEY,
+      employee_name VARCHAR(255) NOT NULL,
+      department VARCHAR(255) NOT NULL,
+      salary INT
+    );
+
+    INSERT INTO employee_test(employee_name,department,salary)
+    VALUES
+    ('John','Finance',2500),
+    ('Mary',NULL,3000),
+    ('Peter',null,4000),
+    ('Suzy','Finance',4000),
+    ('Linda','IT',4000),
+    ('Bob','IT',2000);
+    ```
+
+  - Let's display all department
+
+    ```
+    SELECT
+      employee_name,
+      department,
+      salary
+    FROM employee_test
+      ORDER BY department;
+
+    ```
+
+  - Count Employees for each Department
+
+    ```
+    SELECT
+      department,
+      COUNT(salary) AS "Total employees"
+    FROM employee_test
+      GROUP BY department
+      ORDER BY department;
+    ```
+
+  - How to Handle NULL values
+
+    ```
+    COALESCE(source,'')
+    COALESCE(department,'No Department')
+    ```
+
+    ```
+    SELECT
+      COALESCE(department,'*No Department*') AS department
+      COUNT(salary) AS "Total employees"
+    FROM employee_test
+      GROUP BY department
+      ORDER BY department;
+    ```
