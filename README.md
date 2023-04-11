@@ -5821,3 +5821,989 @@ CREATE TABLE movies_actors(
       GROUP BY department
       ORDER BY department;
     ```
+
+## Section 17: JOINING Multiple Tables
+
+- **INNER Joins**
+
+  - PostgreSQL join is used to combine columns from one or more tables based on the values of the COMMON columns between related tables.
+
+  - The COMMON columns are typically the PRIMARY KEY columns of the first table and FOREIGN KEY columns of the second table.
+
+  - Syntax
+
+    ```
+    SELECT
+      table1.column1,
+      table2.column2
+    FROM
+    INNER JOIN table2
+    ON table1.column1 = table2.column2
+    ```
+
+  - For Inner Joins : All common columns defined at ON must MATCH values on both tables
+
+  - Examples
+
+    - Combine 'movies' and 'directors' table
+
+      ```
+      SELECT
+        movies.movie_id,
+        movies.movie_name,
+
+        directors.first_name || ' ' || directors.last_name AS "Full name"
+      FROM movies
+        INNER JOIN directors
+        ON movies.director_id = directors.director_id;
+      ```
+
+    - Using JOIN with an alias
+
+      ```
+      SELECT
+        mv.movie_id,
+        mv.movie_name,
+
+        dir.first_name || ' ' || dir.last_name AS "Full name"
+      FROM movies mv
+        INNER JOIN directors dir
+        ON mv.director_id = dir.director_id;
+      ```
+
+    - Filter some records [English language]
+
+      ```
+      SELECT
+        mv.movie_id,
+        mv.movie_name,
+        mv.movie_lang,
+
+        dir.first_name || ' ' || dir.last_name AS "Full name"
+      FROM movies mv
+        INNER JOIN directors dir
+        ON mv.director_id = dir.director_id
+      WHERE
+        mv.movie_lang = 'English'
+      ```
+
+    - Using tablename._ or table_alias._ instead of individual column name
+
+      ```
+      SELECT
+        mv.*,
+        dir.*
+      FROM movies mv
+        INNER JOIN directors dir
+        ON mv.director_id = dir.director_id
+      WHERE
+        mv.movie_lang = 'English';
+      ```
+
+- **INNER Joins With USING**
+
+  - We use USING only when joining tables have the SAME COLUMN NAMES rather than ON.
+
+  - The USING clause is a shorthand that allows you to take advantage of the specific situation where both sides of the join use the same name for the joining column(s).
+
+  - Let's say the SAME COLUMN NAME IS column1
+
+  - Syntax
+
+    ```
+    SELECT
+      table1.column1,
+      table2.column1,
+      ...,
+    FROM table1
+    INNER JOIN table2 USING (column1);
+    ```
+
+  - Examples
+
+    - JOIN 'movies' and 'directors' table with USING (no aliases)
+
+      ```
+      SELECT *
+      FROM movies
+      INNER JOIN directors USING (director_id);
+      ```
+
+    - JOIN 'movies' and 'movies_revenues' table
+
+      ```
+      SELECT *
+      FROM movies
+      INNER JOIN movies_revenues USING (movie_id);
+      ```
+
+    - Can we combine more than 2 tables ( movies,directors,movie_revenues )
+
+      ```
+      SELECT *
+      FROM movies
+      INNER JOIN directors USING (director_id)
+      INNER JOIN movies_revenues USING (movie_id);
+      ```
+
+- **INNER Joins With filter data Part 1**
+
+  - Select movie name , director name , domestic revenues for all japanese movies
+
+    ```
+    SELECT
+      mv.movie_name,
+
+      dir.first_name ||' ' || dir.last_name AS "Full name",
+
+      mr.revenues_domestic
+    FROM movies mv
+      INNER JOIN directors dir ON mv.director_id = dir.director_id
+      INNER JOIN movies_revenues mr ON mv.movie_id = mr.movie_id
+    WHERE mv.movie_lang = 'Japanese';
+    ```
+
+  - Select movie name , director name for all English, Chinese , Japanese movies where domestic revenues > 100
+
+    ```
+    SELECT
+      mv.movie_name,
+      dir.first_name ||' ' ||dir.last_name As "Full name",
+      mr.revenues_domestic
+    FROM movies mv
+      INNER JOIN directors dir ON mv.director_id = dir.director_id
+      INNER JOIN movies_revenues mr ON  mv.movie_id = mr.movie_id
+    WHERE
+      mv.movie_lang IN ('English','Chinese','Japanese')
+    AND
+      mr.revenues_domestic > 100
+    ORDER BY 3 DESC;
+    ```
+
+- **INNER Joins With filter data Part 2**
+
+  - Select movie name , director name , movie language, total revenues for all top 5 movies
+
+    ```
+    SELECT
+      mv.movie_name,
+      dir.first_name ||' ' ||dir.last_name As "Full name",
+      mr.revenues_domestic,
+      mr.revenues_international,
+      (mr.revenues_domestic + mr.revenues_international) As "Total revenues"
+
+    FROM movies mv
+      INNER JOIN directors dir ON mv.director_id = dir.director_id
+      INNER JOIN movies_revenues mr ON mv.movie_id = mr.movie_id
+    ORDER BY 5 DESC
+    NULLS LAST
+    LIMIT 5;
+    ```
+
+- **INNER Joins With filter data Part 3**
+
+  - What were the top 10 most profitables movies between year 2005 and 2008. Print the movie name, director names, movie language and total revenues
+
+    ```
+    SELECT
+      mv.movie_name,
+      mv.movie_lang,
+      mv.release_date,
+
+      dir.first_name ||' ' || dir.last_name AS "Full Names",
+      mr.revenues_domestic,
+      mr.revenues_international,
+      (mr.revenues_domestic + mr.revenues_international) AS "Total Revenues"
+
+    FROM movies mv
+      INNER JOIN directors dir ON mv.director_id = dir.director_id
+      INNER JOIN movies_revenues mr ON mv.movie_id = mr.movie_id
+    WHERE
+      mv.release_date BETWEEN '2005-01-01' AND '2008-12-31'
+
+    ORDER BY 7
+    LIMIT 10;
+    ```
+
+- **INNER Joins With different data types**
+
+  - How to with different columns data types
+
+  - Create a table with INT & VARCHAR data type
+
+    ```
+    CREATE TABLE t1 (test INT );
+    CREATE TABLE t2 (test VARCHAR(10) );
+    ```
+
+  - Can we join them
+
+    ```
+    SELECT
+      *
+    FROM t1
+      INNER JOIN t2 ON t1.test = t2.test; --ERROR:  operator does not exist: integer = character varying
+    ```
+
+  - Solution
+
+    ```
+    SELECT
+      *
+    FROM t1
+      INNER JOIN t2 ON t1.test = CAST(t2.test AS INT);
+    ```
+
+  - Add sample data
+
+    ```
+    INSERT INTO t1 VALUES(1),(2);
+    INSERT INTO t2 VALUES(1),(2);
+
+    SELECT
+      *
+    FROM t1
+      INNER JOIN t2 ON t1.test = CAST(t2.test AS INT);
+    ```
+
+- **LEFT Joins Part 1**
+
+  - Returns every row from the LEFT table PLUS rows that match values in the joined column from the RIGHT table
+
+  - When a left table row doesn't have a match in the RIGHT table , the result shows no values from the RIGHT table
+
+  - Syntax
+
+    ```
+    SELECT
+      table1.column1,
+      table2.column1
+    FROM table1
+      LEFT JOIN table2 ON table1.column1 = table2.column1
+    ```
+
+  - Examples
+
+    - Let's create sample tables and add sample data for our LEFT join exercise
+
+      ```
+      CREATE TABLE left_products(
+        product_id SERIAL PRIMARY KEY,
+        product_name VARCHAR(100)
+      );
+
+      CREATE TABLE right_products(
+        product_id SERIAL PRIMARY KEY,
+        product_name VARCHAR(100)
+      );
+
+      INSERT INTO left_products(product_id,product_name)
+      VALUES
+      (1,'Computers'),
+      (2,'Laptops'),
+      (3,'Monitors'),
+      (5,'Mics');
+
+      INSERT INTO right_products(product_id,product_name)
+      VALUES
+      (1,'Computers'),
+      (2,'Laptops'),
+      (3,'Monitors'),
+      (4,'Pen'),
+      (7,'Papers');
+      ```
+
+    - Let us join the table using LEFT JOIN
+
+      ```
+      SELECT *
+      FROM left_products lp
+        LEFT JOIN right_products rp ON lp.product_id = rp.product_id;
+      ```
+
+- **LEFT Joins Part 2**
+
+  - Examples
+
+    - List all the movies with the directors first and last names and movie name
+
+      ```
+      SELECT
+        dir.first_name ||' '|| dir.last_name AS "Director",
+        mv.movie_name
+      FROM directors dir
+        LEFT JOIN movies mv ON dir.director_id = mv.director_id;
+      ```
+
+    - Can we reverse the tables 'directors' and 'movies' tables and what is the impact on the results
+
+      ```
+      SELECT
+        dir.first_name ||' '|| dir.last_name AS "Director",
+        mv.movie_name
+      FROM movies mv
+        LEFT JOIN directors dir ON  mv.director_id = dir.director_id;
+      ```
+
+    - Let's add a record in 'directors' table
+
+      ```
+      INSERT INTO directors(first_name,last_name,date_of_birth,nationality)
+      VALUES('Alex','Mwangi','1991-01-01','Kenyan');
+      ```
+
+    - ORDER MATTERS !!!...FROM 'table' - takes all the data from that table in this case (directors) and then LEFT JOIN movies tables.
+
+    - If we flip the order then all movies will be taken and the director record inserted above will be ignored
+
+    - So in LEFT JOIN, it matters what table comes first i.e. table1
+
+- **LEFT Joins Part 3**
+
+  - Examples
+
+    - Can we add a WHERE condition , say get list of English and chinese movies only
+
+      ```
+      SELECT
+        dir.first_name ||' '|| dir.last_name AS "Director",
+        mv.movie_name,
+        mv.movie_lang
+      FROM directors dir
+        LEFT JOIN movies mv ON dir.director_id = mv.director_id
+      WHERE
+        mv.movie_lang IN ('English','Chinese')
+      ORDER BY movie_lang;
+      ```
+
+    - Count all movies for each director
+
+      ```
+      SELECT
+        dir.first_name ||' '|| dir.last_name AS Director,
+        COUNT(*) AS "total movies"
+      FROM directors dir
+        LEFT JOIN movies mv ON dir.director_id = mv.director_id
+      GROUP BY Director
+      ORDER BY Director;
+      ```
+
+    - Get all movies with age certification for all directors where nationalities are American, Chinese and Japanese
+
+      -- WHAT IS THE FIRST TABLE : directors (for all directors)
+
+      ```
+      SELECT
+        mv.movie_name,
+        mv.movie_lang
+      FROM directors dir
+        LEFT JOIN movies mv ON dir.director_id = mv.director_id
+      WHERE
+        dir.nationality IN ('American','Chinese','Japanese')
+      ORDER BY 2;
+      ```
+
+- **LEFT Joins Part 4**
+
+  - Examples
+
+    - Get all total revenues done by each firms for each director
+
+      --What is the FIRST Table OR LEFT Table : films or Directors ?
+      --directors
+
+      ```
+      SELECT
+        dir.first_name ||' '|| dir.last_name AS Director,
+        SUM(mr.revenues_domestic + mr.revenues_international) AS "Total Revenues"
+      FROM directors dir
+        LEFT JOIN movies mv ON  mv.director_id = dir.director_id
+        LEFT JOIN movies_revenues mr ON mr.movie_id = mv.movie_id
+      GROUP BY Director
+      ORDER BY 2 DESC NULLS LAST; --38 records
+      ```
+
+    - Filter NULLS from the above records
+
+      ```
+      SELECT
+        dir.first_name ||' '|| dir.last_name AS Director,
+        SUM(mr.revenues_domestic + mr.revenues_international) AS "Total Revenues"
+      FROM directors dir
+        LEFT JOIN movies mv ON  mv.director_id = dir.director_id
+        LEFT JOIN movies_revenues mr ON mr.movie_id = mv.movie_id
+      GROUP BY Director
+        HAVING SUM(mr.revenues_domestic + mr.revenues_international) > 0
+      ORDER BY 2 DESC; --29 records
+      ```
+
+- **RIGHT JOINS**
+
+  - PostgreSQL Right JOIN return all rows from the RIGHT table, and rows from the other table where the join condition is fulfilled defined in the ON condition.
+
+  - If there are no corresponding records found from the Left table, it will return null values.
+
+  - Syntax
+
+    ```
+    SELECT
+      table1.column1,
+      table2.column1
+    FROM table1
+      RIGHT JOIN table2 ON table1.column1 = table2.column1;
+    ```
+
+  - RETURNS ALL THE DATA FROM 'table2' and ONLY matchinng data from table1
+
+  - OPPOSITE to LEFT JOIN
+
+  - Examples
+
+    - Let's join left_products and right_products via RIGHT JOIN
+
+      ```
+      SELECT
+        *
+      FROM left_products
+        RIGHT JOIN right_products ON left_products.product_id = right_products.product_id;
+      ```
+
+      - Fetches all data from the 'right_products' table plus matching records, null if no matching values
+
+        --there is no record for 'Mics'
+
+    - Let's run RIGHT JOIN on movies database
+
+      - List all the movies with directors first and last names and movie name
+
+        - **what is the right table or table2 :movies**
+
+          ```
+          SELECT
+            CONCAT(dir.first_name,' ',dir.last_name) AS Director,
+            mv.movie_name AS Movie
+          FROM directors dir
+            RIGHT JOIN movies mv ON dir.director_id = mv.director_id
+          ORDER BY Director; --54 records
+          ```
+
+        - **No record for 'Alex Mwangi'**
+
+    - Let's reverse the tables 'directors' and 'movies'
+
+      - **what is the impact on the results**?
+
+        ```
+        SELECT
+          CONCAT(dir.first_name,' ',dir.last_name) AS Director,
+          mv.movie_name AS Movie
+        FROM movies mv
+          RIGHT JOIN directors dir ON mv.director_id = dir.director_id
+        ORDER BY Director; --54 records
+        ```
+
+      - why do we have 54 records instead of 38..?
+
+        - **This is because each director has done 1 or multiple movies**
+
+    - can we add a WHERE condition; Filter English and Chinese movies only
+
+      ```
+      SELECT
+        CONCAT(dir.first_name,' ',dir.last_name) AS Director,
+        mv.movie_name AS Movie,
+        mv.movie_lang
+      FROM directors dir
+        RIGHT JOIN movies mv ON dir.director_id = mv.director_id
+      WHERE mv.movie_lang IN ('English','Chinese')
+      ORDER BY Director; --43 records
+      ```
+
+- **RIGHT JOINS Part 2**
+
+  - Let's count all movies for each directors
+
+    ```
+    SELECT
+      CONCAT(dir.first_name,' ',dir.last_name) AS director,
+      COUNT(movie_name) AS "Total movies"
+    FROM directors dir
+      RIGHT JOIN movies mv ON dir.director_id = mv.director_id
+    GROUP BY director
+    ORDER BY 2 DESC,director; --37 records
+    ```
+
+    - No 'Alex' record as we are getting all data from movies table and only matching records from 'directors' table
+
+    - Since 'Alex' does not have any movies done
+
+  - Get all total revenues done by each film for each director
+
+    ```
+    SELECT
+      CONCAT(dir.first_name,' ',dir.last_name) AS director,
+      SUM(mr.revenues_domestic + mr.revenues_international) AS "Total revenues"
+    FROM movies mv
+      RIGHT JOIN directors dir ON mv.director_id = dir.director_id
+      RIGHT JOIN movies_revenues mr ON mv.movie_id = mr.movie_id
+    GROUP BY director
+    ORDER BY 2 DESC NULLS LAST;
+    ```
+
+    - Filter NULLS
+
+      ```
+      SELECT
+        CONCAT(dir.first_name,' ',dir.last_name) AS director,
+        SUM(mr.revenues_domestic + mr.revenues_international) AS "Total revenues"
+      FROM movies mv
+        RIGHT JOIN directors dir ON mv.director_id = dir.director_id
+        RIGHT JOIN movies_revenues mr ON mv.movie_id = mr.movie_id
+      GROUP BY director
+      ORDER BY 2 DESC NULLS LAST;
+      ```
+
+- **FULL JOINS**
+
+  - PostgreSQL Full JOIN returns all records from all the join tables
+
+  - Syntax
+
+    ```
+    SELECT
+      table1.column1,
+      table2.column2,
+    FROM table1
+      FULL JOIN table2 ON table1.column1 = table2.column2;
+    ```
+
+  - Returns all the data from 'table1' and 'table2'
+
+  - Examples
+
+    - Let's join left_products and right_products via FULL JOIN
+
+      ```
+      SELECT
+        *
+      FROM left_products
+        FULL JOIN right_products on left_products.product_id = right_products.product_id;
+      ```
+
+- **Joining Multiple Tables via JOIN**
+
+  - We can join multiple tables via JOIN
+
+  - Syntax
+
+    ```
+    SELECT
+      table1.column,
+      table2.column,
+      table3.column
+    FROM table1
+      JOIN table2 ON table1.column = table2.column
+      JOIN table3 ON table2.column = table3.column;
+    ```
+
+  - Examples
+
+    - Let's join movies,directors and movies revenues tables
+
+      ```
+      SELECT
+        *
+      FROM movies mv
+        JOIN directors dir ON mv.director_id = dir.director_id
+        JOIN movies_revenues mr ON mv.movie_id = mr.movie_id; --53 records
+      ```
+
+  - Does the order of joining table matter..- No it doesn't..?
+
+    ```
+    SELECT
+      *
+    FROM movies mv
+      JOIN movies_revenues mr ON mv.movie_id = mr.movie_id
+      JOIN directors dir ON mv.director_id = dir.director_id; --53 records
+    ```
+
+    ```
+    SELECT
+      *
+    FROM directors dir
+      JOIN movies mv ON dir.director_id = mv.director_id
+      JOIN movies_revenues mr ON mv.movie_id = mr.movie_id; --53 records
+    ```
+
+  - Let's join movie actors , directors and movie revenues together
+
+    ```
+    SELECT
+      *
+    FROM actors ac
+      JOIN movies_actors ma ON ac.actor_id = ma.actor_id
+      JOIN movies mv ON ma.movie_id = mv.movie_id
+      JOIN directors dir ON mv.director_id = dir.director_id
+      JOIN movies_revenues mr ON mv.movie_id = mr.movie_id; --70 records
+    ```
+
+  - Is JOIN and INNER JOIN same.....Yes?
+
+    ```
+    SELECT
+      *
+    FROM actors ac
+      INNER JOIN movies_actors ma ON ac.actor_id = ma.actor_id
+      INNER JOIN movies mv ON ma.movie_id = mv.movie_id
+      INNER JOIN directors dir ON mv.director_id = dir.director_id
+      INNER JOIN movies_revenues mr ON mv.movie_id = mr.movie_id; --70 records
+    ```
+
+  - INNER JOIN == JOIN
+
+  - INNER JOIN is the Default if you don't specify the type when you use the word JOIN
+
+- **SELF JOINS Part 1**
+
+  - PostgreSQL Self is a regular join that joins a table to itself.
+
+  - Normal use case
+
+    - query hierarchical data
+
+    - compare rows within the same table.
+
+  - Syntax
+
+    ```
+    SELECT
+      [column_list]
+    FROM tablename t1
+      INNER JOIN tablename t2 ON t1.column = t2.column;
+    ```
+
+  - Examples
+
+    - Let's self join 'left_products' table
+
+      ```
+      SELECT
+        *
+      FROM left_products t1
+        INNER JOIN left_products t2 ON t1.product_id = t2.product_id;
+      ```
+
+    - Let's self join 'directors' table
+
+      ```
+      SELECT
+        *
+      FROM directors dir
+      INNER JOIN directors dir2 ON dir.director_id = dir2.director_id;
+      ```
+
+    - Let's self join and find all pairs of 'movies' with the same movie length
+
+      ```
+      SELECT
+        mv.movie_name,
+        mv_2.movie_name,
+        mv.movie_length
+      FROM movies mv
+        INNER JOIN movies mv_2 ON mv.movie_length = mv_2.movie_length
+      AND mv.movie_name <> mv_2.movie_name
+      ORDER BY 3 DESC;
+      ```
+
+  - Self JOIN is more of a one-to-one record relationship
+
+- **SELF JOINS Part 2**
+
+  - Let's query hierachical data like all directors and movies
+
+    ```
+    SELECT DISTINCT
+      t1.movie_name,
+      t2.director_id
+    FROM movies t1
+      INNER JOIN movies t2 ON t1.director_id = t2.director_id
+    ORDER BY t2.director_id,t1.movie_name;
+    ```
+
+- **CROSS JOINS**
+
+  - A CROSS JOIN clause allows you to produce a Cartesian Product of rows in two or more tables.
+
+  - The result also known as a Cartesian product lines up each row in the LEFT table with each row in the RIGHT table to present all possible combinations.
+
+  - Suppose you want to perfom a CROSS JOIN of 2 tables, t1 and t2.
+
+  - If table1 has (n) rows and table2 has (n) rows, the resultset will have (n \* n) rows
+
+  - For eaxample, table1 has 1000 rows and table2 has 1000 rows, the result set will have 1000\*1000 = 1,000,000 rows
+
+  - Unlike INNER,LEFT or RIGHT JOINS , CROSS JOIN does not have a JOIN predicate
+
+  - Syntax
+
+    ```
+    SELECT
+      [column_list]
+    FROM table1
+      CROSS JOIN table2;
+    ```
+
+  - Examples
+
+    - Let's CROSS JOIN left_products and right products
+
+      ```
+      SELECT * FROM left_products ; --4 rows
+      SELECT * FROM right_products ; --5 rows
+
+      -- 4 * 5 = 20 rows
+
+      SELECT
+        *
+      FROM left_products
+        CROSS JOIN right_products; --20 rows
+      ```
+
+    - Does the order of the table matter..Yes - starts with right_products?
+
+      ```
+      SELECT
+        *
+      FROM right_products
+        CROSS JOIN left_products; --20 rows (starts with right_products);
+
+      --------------------------------------------------------------------
+
+      SELECT
+        *
+      FROM left_products
+        CROSS JOIN right_products; --20 rows (starts with left_products);
+      ```
+
+    - Do we have an equivalent of CROSS JOIN..?
+
+      - Method #1 : table1,table2
+
+        ```
+        SELECT
+          column_list
+        FROM table1,table2;
+
+        SELECT
+          *
+        FROM left_products,right_products;
+
+        -----------------------------------
+
+        SELECT
+          *
+        FROM left_products,right_products;
+        ```
+
+      - Method #2 : Using INNER JOIN
+
+        ```
+        SELECT
+          column_list
+        FROM table1
+          INNER JOIN table2 ON true;
+
+        ================================
+
+        SELECT
+          *
+        FROM left_products
+          INNER JOIN right_products ON true;
+        ```
+
+    - Let's CROSS JOIN 'actors' and 'directors' table
+
+      ```
+      SELECT * FROM actors; --147rows
+      SELECT * FROM directors; --38rows
+
+      =============================================
+
+      SELECT
+        *
+      FROM actors,directors; --147 * 38 = 5586 rows
+      ==============================================
+      SELECT
+        *
+      FROM actors
+        CROSS JOIN directors; --147 * 38 = 5586 rows
+
+      ==============================================
+      SELECT
+        *
+      FROM actors
+        INNER JOIN directors ON true; --147 * 38 = 5586 rows
+      ```
+
+- **Natural Joins Part 1**
+
+  - A natural join is a join that creates an implicit join based on the same column names in the joined tables.
+
+  - A natural join can be an INNER join, LEFT or RIGHT join.
+
+  - If you do not specify a JOIN explicitly, PostgreSQL will use INNER JOIN by default
+
+  - If you use the asterisk (\*) in the select list, the result will contain the following columns:
+
+    - All the common columns, which are the columns from both tables that have the same name.
+    - Every column from both tables, which is not a common column.
+
+  - Syntax
+
+    ```
+    SELECT [column_list]
+    FROM t1
+    NATURAL [INNER, LEFT, RIGHT] JOIN t2;
+    ```
+
+  - Examples
+
+    - Let's NATURAL JOIN left_products and right_products : Using (\*)
+
+      ```
+      SELECT
+        *
+      FROM left_products
+        NATURAL JOIN right_products; --default NATURAL INNER
+
+      =============================
+
+      SELECT
+        *
+      FROM left_products
+        NATURAL LEFT JOIN right_products; --all items from 'left_products'
+
+      =============================
+
+      SELECT
+        *
+      FROM left_products
+        NATURAL RIGHT JOIN right_products; --all items from 'right_products'
+      ```
+
+    - Using common column
+
+      ```
+      SELECT
+        *
+      FROM left_products
+        NATURAL JOIN right_products;
+
+      ========================================================
+
+      SELECT
+        *
+      FROM left_products
+        INNER JOIN right_products USING (product_id);
+      ```
+
+- **Natural Joins Part 2**
+
+  - Let's NATURAL JOIN 'movies' and 'directors' table
+
+    ```
+    SELECT
+      *
+    FROM movies
+      NATURAL JOIN directors;
+
+    --equivalent to NATURAL INNER - uses common column: director_id -no need to specify
+
+    =========================================
+
+    SELECT
+      *
+    FROM movies
+      NATURAL LEFT JOIN directors; --53 records - all records from movies
+
+    =========================================
+
+    SELECT
+      *
+    FROM movies
+      NATURAL RIGHT JOIN directors; --54 records - all records from directors
+
+    ```
+
+- **Append tables with different columns**
+
+  - We have :-
+
+    - table1 with columns : add_date , col1,col2,col3...
+
+    - table2 with columns : add_date , col1,col2,col3,col4,col5...
+
+  - We want to combine the 2 tables , but making sure to take the data from the FIRST table table1
+
+  - Let's create a new table add add sample data
+
+    ```
+    CREATE TABLE table1(
+      add_date DATE,
+      col1 INT,
+      col2 INT,
+      col3 INT
+    );
+    CREATE TABLE table2(
+      add_date DATE,
+      col1 INT,
+      col2 INT,
+      col3 INT,
+      col4 INT,
+      col5 INT
+    );
+    ```
+
+  - Let's insert sample data
+
+    ```
+    INSERT INTO table1 VALUES
+    ('2020-01-01',1,2,3),
+    ('2020-01-02',4,5,6);
+
+    INSERT INTO table2 VALUES
+    ('2020-01-01',null,7,8,9,10),
+    ('2020-01-02',11,12,13,14,15),
+    ('2020-01-03',16,17,18,19,20);
+
+    ```
+
+  - Combine the two table ensure you take data from the FIRST TABLE table1
+
+    ```
+    SELECT
+      COALESCE(t1.add_date,t2.add_date) AS "Add_date",
+      COALESCE(t1.col1,t2.col1) AS col1,
+      COALESCE(t1.col2,t2.col2) AS col2,
+      COALESCE(t1.col3,t2.col3) AS col3,
+      t2.col4 AS col4,
+      t2.col5 AS col5
+    FROM table1 t1
+      FULL OUTER JOIN table2 t2 ON t1.add_date = t2.add_date;
+
+    ```
+
+- **ON vs WHERE**
+
+  - The ON clause is part of the INNER,LEFT,RIGHT and FULL Joins.
+
+  - The CROSS Join and UNION Join don't have an ON clause because neither of them does the filtering
+
+  - The ON clause in an INNER JOIN is logically equivalent to a WHERE clause .i.e. the same condition could be specified either in an ON clause or a WHERE clause
+
+  - The ON clause in OUTER Join i.e. LEFT , RIGHT , FULL joins are different from WHERE clauses
+
+    - The WHERE clause simply filter the rows returned by the FROM clause. Rows rejected are not included in the result
+
+    - The ON clause in an OUTER JOIN first filters the rows of a cross product and then includes the rejected wors, extended with nulls values.
