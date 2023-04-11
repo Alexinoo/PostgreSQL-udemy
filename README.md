@@ -6807,3 +6807,343 @@ CREATE TABLE movies_actors(
     - The WHERE clause simply filter the rows returned by the FROM clause. Rows rejected are not included in the result
 
     - The ON clause in an OUTER JOIN first filters the rows of a cross product and then includes the rejected wors, extended with nulls values.
+
+## Section 18: COMBINING QUERIES TOGETHER
+
+- **Combine result sets with UNION**
+
+  - The UNION operator combines result sets from 2 or more SELECT statements into a single result set
+
+  - To be able to use UNION:
+
+    - The order and number of columns in the select list of all queries must be the same
+    - The data types must be compatible too
+
+  - Syntax
+
+    ```
+    SELECT column1,column2
+    FROM table1
+    UNION
+    SELECT column1,column2
+    FROM table2
+    ```
+
+  - Examples
+
+    - Let's use UNION on 'left_products' and 'right_products' table
+
+      ```
+      SELECT product_id,product_name
+      FROM left_products
+      UNION
+      SELECT product_id,product_name
+      FROM right_products;
+      ```
+
+    - Do we get duplicate records when we use UNION...? - No filters UNIQUE records only
+
+      ```
+      INSERT INTO right_products VALUES(8,'Pen');
+
+      SELECT product_id,product_name
+      FROM left_products
+      UNION
+      SELECT product_id,product_name
+      FROM right_products;
+      ```
+
+    - What if we need duplicate records too..? - Use UNION ALL
+
+      ```
+      SELECT product_id,product_name
+      FROM left_products
+      UNION ALL
+      SELECT product_id,product_name
+      FROM right_products;
+      ```
+
+    - Let's combine 'actors' and 'directors' table
+
+      ```
+      SELECT
+        first_name,
+        last_name
+      FROM directors --38 rows
+      UNION
+      SELECT
+        first_name,
+        last_name
+      FROM actors --147 rows
+      ```
+
+    - Can we use UNION with ORDER BY..? -- oh yes
+
+      ```
+      SELECT
+        first_name,
+        last_name,
+        'directors' as tablename
+      FROM directors
+      UNION
+      SELECT
+        first_name,
+        last_name,
+        'actors' as tablename
+      FROM actors
+        ORDER BY tablename;
+      ```
+
+    - Can we use UNION on data types which are not the same..? --
+
+      - Select gender on 'actors' - works both first_name & gender are VARCHAR
+
+        ```
+        SELECT
+          first_name,
+          last_name,
+          'directors' as tablename
+        FROM directors
+        UNION
+        SELECT
+          gender,
+          last_name,
+          'actors' as tablename
+        FROM actors
+          ORDER BY tablename;
+        ```
+
+      - Select gender on 'actors' -ERROR:UNION types VARCHAR and DATE cannot be matched
+
+        ```
+        SELECT
+          first_name, --VARCHAR
+          last_name,
+          'directors' as tablename
+        FROM directors
+        UNION
+        SELECT
+          date_of_birth, --DATE
+          last_name,
+          'actors' as tablename
+        FROM actors
+          ORDER BY tablename;
+        ```
+
+- **UNION with filters and conditions**
+
+  - Let's combine all directors where nationality are American,Chinese and Japanese with all female actors
+
+    ```
+    SELECT
+      first_name,
+      last_name,
+      'directors' as tablename
+    FROM directors
+      WHERE nationality IN ('American','Chinese','Japanese')
+    UNION
+    SELECT
+      first_name,
+      last_name,
+      'actors' as tablename
+    FROM actors
+      WHERE gender = 'F'
+    ORDER BY tablename;
+    ```
+
+  - Select first and last names of all directors and actors which are born after 1998
+
+    ```
+    SELECT
+      first_name,
+      last_name,
+      date_of_birth,
+      'directors' as tablename
+    FROM directors
+      WHERE date_of_birth >'1990-12-31'
+    UNION
+    SELECT
+      first_name,
+      last_name,
+      date_of_birth,
+      'actors' as tablename
+    FROM actors
+      WHERE date_of_birth >'1990-12-31'
+    ORDER BY date_of_birth;
+    ```
+
+  - Select first and last names of all directors and actors where their first names start with 'A'
+
+    ```
+    SELECT
+      first_name,
+      last_name,
+      'directors' as tablename
+    FROM directors
+      WHERE first_name LIKE 'A%'
+    UNION
+    SELECT
+      first_name,
+      last_name,
+      'actors' as tablename
+    FROM actors
+      WHERE first_name LIKE 'A%'
+    ORDER BY tablename;
+    ```
+
+  - Can we combine different number of columns from each queries..? --NO!
+
+    ```
+    SELECT
+      first_name,
+      last_name,
+      date_of_birth,
+      'directors' as tablename
+    FROM directors
+      WHERE nationality IN ('American','Chinese','Japanese')
+    UNION
+    SELECT
+      first_name,
+      last_name,
+      'actors' as tablename
+    FROM actors
+      WHERE gender = 'F'
+    ORDER BY tablename;
+
+     --ERROR: each UNION query must have the same number of columns
+    ```
+
+- **UNION tables with different number of columns - UNION WITH NULL**
+
+  - We have :
+
+    - table1 with columns : col1, --2cols
+    - table2 with columns : ,col3 --1 col
+
+  - Let's look at how we can combine columns with tables with different no. of columns
+
+    ```
+    CREATE TABLE table3(
+      col1 INT,
+      col2 INT
+    );
+    CREATE TABLE table4(
+      col3 INT
+    );
+    ```
+
+  - Let's use UNION with NULL
+
+    --Each union query MUST have the same number of columns
+
+    ```
+    SELECT col1,col2
+    FROM table3
+    UNION
+    SELECT col3
+    FROM table4;
+    ```
+
+- **INTERSECT with tables**
+
+  - The INTERSECT operator returns any rows that are available in both result sets.
+
+  - To use the INTERSECT operator, the columns that appear in the SELECT statements must follow the folowing rules:
+
+    - The number of columns and their order in the SELECT list must be the same.
+    - The data types of the columns must be compatible.
+
+  - Syntax
+
+    ```
+    SELECT column1,column2
+    FROM table1
+    INTERSECT
+    SELECT column1,column2
+    FROM table2
+    ```
+
+  - Let's use INTERSECT on left_products and right_products
+
+    ```
+    SELECT product_id,product_name
+    FROM left_products
+    INTERSECT
+    SELECT product_id,product_name
+    FROM right_products;
+
+    --These records are in the same table (left_products & right_products)
+    ```
+
+  - Do we get duplicate records when we use INTERSECT? --NO
+
+    - Filters only distinct records
+
+  - Let's INTERSECT first and last names of directors and actors
+
+    ```
+    SELECT
+      first_name,last_name
+    FROM directors
+    INTERSECT
+    SELECT
+      first_name,last_name
+    FROM actors
+    ORDER BY first_name;
+    ```
+
+  - Filters common data between the 2 tables but unique ones only
+
+- **Except with tables**
+
+  - The EXCEPT operator returns distinct rows from the first (left) query that are not in the output of the second (right) query.
+
+  - Returns rows in the first query that do not appear in the output of the second query
+
+  - The queries that involve in the EXCEPT need to follow these rules:
+
+    - The number of columns and their orders must be the same in the two queries.
+    - The data types of the respective columns must be compatible.
+
+  - Syntax
+
+    ```
+    SELECT column1,column2
+    FROM table1
+    EXCEPT
+    SELECT column1,column2
+    FROM table2
+    ```
+
+  - Examples
+
+    - Let's use EXCEPT on left_products and right_products
+
+      ```
+      SELECT product_id,product_name
+      FROM left_products
+      EXCEPT
+      SELECT product_id,product_name
+      FROM right_products; --Mics
+      ```
+
+    - Let's EXCEPT first and last names of directors and actors table
+
+      ```
+      SELECT first_name,last_name
+      FROM directors
+      EXCEPT
+      SELECT first_name,last_name
+      FROM actors;
+      ```
+
+    - List all the directors first and last names , unless they have the same first_name in female actors
+
+      ```
+      SELECT first_name,last_name
+      FROM directors
+      EXCEPT
+      SELECT first_name,last_name
+      FROM actors
+        WHERE gender = 'F';
+      ```
