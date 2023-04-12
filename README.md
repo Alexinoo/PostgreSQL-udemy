@@ -7147,3 +7147,348 @@ CREATE TABLE movies_actors(
       FROM actors
         WHERE gender = 'F';
       ```
+
+## Section 19: PostgreSQL Schema
+
+- **What is a Schema**
+
+  - In PostgreSQL, a schema is a namespace that contains named database objects such as tables, views, indexes, data types, functions, stored procedures and operators.
+
+  - Each PostgreSQL schema should be unique and different from each other
+
+  - Benefits of Schemas
+
+    - Schemas allow you to organize database objects e.g., tables into logical groups to make them more manageable.
+
+    - Schemas enable multiple users to use one database without interfering with each other.
+
+    - Schemas allow you to organize and limit database objects access to users.
+
+  - PostgreSQL automatically creates a schema called public for every new database.
+
+  - Whatever object you create without specifying the schema name, PostgreSQL will place it into this public schema.
+
+  - Therefore, the following statements are equivalent:
+
+    ```
+    CREATE TABLE table_name(..);
+
+    CREATE TABLE public.table_name(...);
+    ```
+
+- **Schema Operations (ADD/ALTER/DELETE schemas)**
+
+  - Create a schema
+
+    ```
+    --Syntax
+    CREATE SCHEMA schema_name;
+
+    --Examples
+    CREATE SCHEMA sales;
+    CREATE SCHEMA hr;
+    CREATE SCHEMA dev;
+    ```
+
+  - Rename a schema
+
+    ```
+    --Syntax
+    ALTER SCHEMA schema_name RENAME TO new_schema_name;
+
+    --Examples
+    ALTER SCHEMA dev RENAME TO admin;
+    ```
+
+  - Drop a schema
+
+    ```
+    --Syntax
+    DROP SCHEMA schema_name;
+
+    --Examples
+    DROP SCHEMA admin;
+    ```
+
+  - use pgAdmin (GUI) for schema operations
+
+    - CREATE - Right Click on Schema > Create > schema > ..
+    - RENAME - Right Click on Schema > Properties > Change schema name > ..
+    - DROP - Right Click on Schema > Delete/Drop > prompt..
+
+- **Schema Hierachy**
+
+  - Physical
+
+    - host > cluster > database > schema > object_name
+
+  - Object access
+
+    - database > schema > object_name
+
+    - e.g. hr.public.employees
+
+  - PostgreSQL automatically creates a schema called public for every new database.
+
+  - Examples
+
+    - create database
+
+      ```
+      CREATE DATABASE TEST;
+      ```
+
+    - select a table from 'public' schema
+
+      ```
+      SELECT * FROM TEST.public.employees;
+      ```
+
+    - select a table other than 'public' schema
+
+      ```
+      SELECT * FROM TEST.hr.employees;
+      ```
+
+- **Move a table to a new schema**
+
+  - create table 'Orders' in HR > hr schema
+
+    ```
+    CREATE TABLE hr.Orders(
+      order_id SERIAL PRIMARY KEY
+    );
+    ```
+
+  - Move table to public schema
+
+    ```
+    ALTER TABLE hr.Orders SET SCHEMA public;
+    ```
+
+- **Schema search path**
+
+  - In practice, you will refer to a table without its schema name e.g., orders table instead of a fully qualified name such as hr.orders table. e.g.
+
+    ```
+    SELECT * FROM orders;
+
+    SELECT * FROM public.orders;
+    ```
+
+  - PostgreSQL will access the first matching table in the schema search path. If there is no match, it will return an error, even the name exists in another schema in the database.
+
+  - The first schema in the search path is called the current schema.
+
+  - When you create a new object without explicitly specifying a schema name, PostgreSQL will also use the current schema for the new object.
+
+  - Examples
+
+    - **How to view the current schema ..?**
+
+      ```
+      SELECT current_schema();
+      ```
+
+    - **How to view the current search path ..?** --postgres,public
+
+      ```
+      SHOW search_path;
+      ```
+
+    - **How to add new schema to search path ..?**
+
+      ```
+      SET search_path TO schema_name, public
+
+      SET search_path TO hr, public
+
+      OR
+
+      SET search_path TO '$user',hr, public
+      ```
+
+- **Alter a Schema ownership**
+
+  - Change Schema owner
+
+    ```
+    ALTER SCHEMA schema_name OWNER TO new_owner;
+
+    ALTER SCHEMA hr OWNER TO "Alex";
+    ```
+
+- **Duplicate a schema along with all data**
+
+  - Let's create a sample database called a "test_schema"
+
+    ```
+    CREATE DATABASE test_schema;
+    ```
+
+  - Let's create a sample table 'songs' and add sample data
+
+    ```
+    CREATE TABLE songs(
+      song_id SERIAL PRIMARY KEY NOT NULL,
+      song_title VARCHAR(100)
+    );
+
+    INSERT INTO songs(song_title)
+    VALUES('Counting Star'),('ROlling on');
+    ```
+
+  - Now duplicate the schema "test_schema.public" with all data
+
+    - STEP 1 : Make a dump of our test_schema.public using pg_dump
+
+      ```
+      pg_dump -d database_name -h localhost -U postgres -n public > dump.sql
+
+      pg_dump -d test_schema -h localhost -U postgres -n public > dump.sql
+
+      ```
+
+    - STEP 2 : Rename the original schema from 'public' to say 'old_schema'
+
+      ```
+      ALTER SCHEMA public RENAME TO old_schema;
+      ```
+
+    - STEP 3 : Create an empty schema call it say test_schema.public'
+
+    - STEP 4 : Import the dump'ed file
+
+      ```
+      psql -h localhost -U postgres -d database_name -f dump.sql
+
+      psql -h localhost -U postgres -d test_schema -f dump.sql
+
+      SET search_path TO test_schema,public;
+      ```
+
+- **What is a system catalog schema**
+
+  - In addition to public and user-created schemas, each database contains a pg_catalog schema.
+
+  - PostgreSQL stores the metadata information about the database and cluster in the schema 'pg_catalog'
+
+  - This info is partially used by PostgreSQL itself to keep track of things itself, but can also be presented to external people/processes who can understand the inside of the databases too
+
+  - PostgreSQL's system catalogs are regular tables with all the built-in data types, functions, and operators.
+
+  - pg_catalog is always effectively part of the search path. Although if it is not named explicitly in the path then it is implicitly searched before searching the path's schema
+
+    ```
+    SHOW search_path;
+    ```
+
+  - However, you can explicitly place pg_catalog at the end of your search_path if you prefer to have user-defined names override built-in names
+
+    ```
+    SET search_path TO '$user',public,pg_catalog;
+    ```
+
+  - In pg\_\_catalog, all system table names begin with pg\_\_, so it is recommended to avoid naming your tables using these suffix to avoid name conflicts
+
+  - How to view pg_catalog or infact all schemas including system
+
+    ```
+    SELECT * FROM information_schema.schemata;
+    ```
+
+  - The information schema is a system schema which consists of a set of views that contain info about the objects defined in the current database
+
+  - PostgreSQL catalog has a pretty solid rule : LOOK! DON'T TOUCH OR ALTER
+
+  - While PostgreSQL stores all info in tables like any other application would, the data in the tables are fully managed by PostgreSQl itself, and shd not be modified unless an absolute emergency, and even rebuild is likely in order afterwards
+
+- **Compare tables and columns in two schemas**
+
+  - Here’s the SQL query to compare two schemas.
+
+  - Replace schema1 and schema2 with the names of two schemas you want to compare.
+
+  ```
+  SELECT COALESCE(c1.table_name, c2.table_name) as table_name,
+     COALESCE(c1.column_name, c2.column_name) as table_column,
+     c1.column_name as schema1,
+     c2.column_name as schema2
+  FROM
+  (SELECT table_name,
+          column_name
+   FROM information_schema.columns c
+   WHERE c.table_schema = 'schema1') c1
+
+  FULL JOIN
+       (SELECT table_name,
+               column_name
+        FROM information_schema.columns c
+        WHERE c.table_schema = 'schema2') c2
+  on c1.table_name = c2.table_name AND c1.column_name = c2.column_name
+  WHERE c1.column_name is null OR c2.column_name is null
+  ORDER BY table_name,table_column;
+  ```
+
+- **Schemas and Privileges**
+
+  - Users can only access objects in the schema that they own
+
+  - Two schema access level rights
+
+    - USAGE - To access schema
+
+    - CREATE - To create objects like tables e.t.c in a schema
+
+  - **USAGE**
+
+    - Allow users to access the objects in the schema that they do not own, we must grant the USAGE privilege of the schema
+
+    ```
+    GRANT USAGE ON SCHEMA schema_name TO role_name;
+    ```
+
+    - Examples
+
+      - Let's create a schema called 'private' on hr database and give rights to 'postgres' user
+
+        ```
+        CREATE SCHEMA hr.private;
+        ```
+
+      - Let's try to access the schema via user 'Alex'
+
+        => Use terminal mode
+
+        ```
+        psql -h localhost -U Alex -d HR
+        ```
+
+        ```
+        SELECT * FROM private.table1; -- Permission denied
+        ```
+
+        => Solution
+
+        ```
+        GRANT USAGE ON SCHEMA private TO "Alex";
+        ```
+
+      - Give access rights to Alex
+
+        ```
+        GRANT SELECT ON ALL TABLES IN SCHEMA private TO "Alex";
+        ```
+
+      - Can he create an object such as a table in 'private' schema..?
+
+        --NO!
+        --ERROR: permission denied for schema private
+
+      - If not, grant him CREATE privilege
+
+        ```
+        GRANT CREATE ON SCHEMA private TO "Alex";
+        ```
+
+      - N/B : Every user has the CREATE and USAGE on the 'public' schema. So from the security point of view , plan accordingly user access rights
